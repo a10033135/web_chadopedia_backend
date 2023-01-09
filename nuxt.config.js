@@ -37,6 +37,42 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    [
+      '@nuxtjs/firebase', {
+        config: {
+          apiKey: 'AIzaSyAkcPGQJYUKayLiq92XSe21_e4JrMoGHsM',
+          authDomain: 'chadopedia.firebaseapp.com',
+          databaseURL: 'https://chadopedia-default-rtdb.firebaseio.com',
+          projectId: 'chadopedia',
+          storageBucket: 'chadopedia.appspot.com',
+          messagingSenderId: '292955403698',
+          appId: '1:292955403698:web:14afada992e74a6235a0ab',
+          measurementId: 'G-GZ35JTJLRF'
+        },
+        services: {
+          auth: {
+            persistence: 'local', // default
+            initialize: {
+              onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION',
+              onAuthStateChangedAction: 'onAuthStateChangedAction',
+              subscribeManually: false
+            },
+            ssr: false, // default
+            emulatorPort: 9099,
+            emulatorHost: 'http://localhost/',
+            disableEmulatorWarnings: false,
+          },
+          firestore: true,
+          functions: true,
+          storage: true,
+          database: true,
+          messaging: true,
+          performance: true,
+          analytics: true,
+          remoteConfig: true
+        }
+      }
+    ]
   ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
