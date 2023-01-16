@@ -53,13 +53,11 @@ export default {
           auth: {
             persistence: 'local', // default
             initialize: {
-              onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION',
-              onAuthStateChangedAction: 'onAuthStateChangedAction',
-              subscribeManually: false
+              onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION'
             },
-            ssr: false, // default
+            ssr: true, // default
             emulatorPort: 9099,
-            emulatorHost: 'http://localhost/',
+            emulatorHost: 'http://127.0.0.1',
             disableEmulatorWarnings: false,
           },
           firestore: true,

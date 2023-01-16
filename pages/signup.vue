@@ -1,40 +1,72 @@
 <template>
-
-    <div class="h-screen w-screen bg-black flex content-center justify-center">
-
-        <div class="p-6 bg-white my-auto w-10/12 h-4/6 rounded-xl shadow-lg ">
-            <div class="bg-red-100 w-full h-full ">
-                <div class="text-xl item-center font-medium text-black">請輸入帳號密碼</div>
-                <div>
-                    <label for="first_name"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-black">帳號</label>
-                    <input type="text" id="first_name"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Your Account" required>
+    <div class="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-md space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Sign in to your account
+                </h2>
+            </div>
+            <div class="space-y-4">
+                <div class="-space-y-px rounded-md shadow-sm">
+                    <div>
+                        <label for="email-address" class="sr-only">Email address</label>
+                        <input id="email-address" name="email" type="email" autocomplete="email" required=""
+                            class="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                            placeholder="Email address" v-model="email" />
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required=""
+                            class="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                            placeholder="Password" v-model="password" />
+                    </div>
                 </div>
-                <div>
-                    <label for="last_name"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-black">密碼</label>
-                    <input type="text" id="last_name"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Your Password" required>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox"
+                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+                    </div>
                 </div>
-                <button @click="signInUser()">button</button>
+
+                <div>
+                    <button type="submit" v-on:click="signIn"
+                        class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Sign in
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-// import { mapState,mapMutations,mapActions } from 'vuex';
+
 export default {
+
+    data() {
+        return {
+            email: '',
+            password: ''
+        }
+    },
     methods: {
+        async signIn() { 
+            console.log(this.email);
+            console.log(this.password);
+
+            try {
+                const user = await this.$fire.auth.signInWithEmailAndPassword(this.email, this.password);
+                this.$router.push("main")
+            } catch (e) {
+                console.log(e);
+            }
+        },
         async signInUser() {
             try {
-               const user = await this.$fire.auth.signInWithEmailAndPassword( 'foo@foo.foo', 'testtesttest');
-               
-               console.log(user);
-               this.$router.push("main")
+                const user = await this.$fire.auth.signInWithEmailAndPassword('foo@foo.foo', 'testtesttest');
+                console.log("user" + user);
+                this.$router.push("main")
             } catch (e) {
                 console.log(e);
             }
@@ -48,6 +80,13 @@ export default {
                     'foo@foo.foo', 'testtesttest'
                 )
 
+            } catch (e) {
+                console.log(e);
+            }
+        },
+        async signUp() {
+            try {
+                await this.$fire.auth.signOut();
             } catch (e) {
                 console.log(e);
             }
