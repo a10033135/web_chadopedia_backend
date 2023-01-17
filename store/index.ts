@@ -20,8 +20,8 @@ export const getters: GetterTree<RootState, RootState> = {
 
 export const mutations: MutationTree<RootState> = {
   ON_AUTH_STATE_CHANGED_MUTATION: (state, { authUser, _claims }) => {
-    console.log('onAuthStateChangedMutation: '+authUser);
-    
+    console.log('onAuthStateChangedMutation: ' + authUser);
+
     if (authUser) {
       const { uid, email, emailVerified } = authUser;
       state.user = { uid, email, emailVerified };

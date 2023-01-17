@@ -34,6 +34,11 @@
                         class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                         Sign in
                     </button>
+                    <p>--</p>
+                    <button type="submit" v-on:click="createUser"
+                        class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Create Account
+                    </button>
                 </div>
             </div>
         </div>
@@ -51,13 +56,13 @@ export default {
         }
     },
     methods: {
-        async signIn() { 
+        async signIn() {
             console.log(this.email);
             console.log(this.password);
 
             try {
                 const user = await this.$fire.auth.signInWithEmailAndPassword(this.email, this.password);
-                this.$router.push("main")
+                this.$router.push("editor")
             } catch (e) {
                 console.log(e);
             }
@@ -66,7 +71,7 @@ export default {
             try {
                 const user = await this.$fire.auth.signInWithEmailAndPassword('foo@foo.foo', 'testtesttest');
                 console.log("user" + user);
-                this.$router.push("main")
+                this.$router.push("editor")
             } catch (e) {
                 console.log(e);
             }
@@ -76,9 +81,7 @@ export default {
 
         async createUser() {
             try {
-                await this.$fire.auth.createUserWithEmailAndPassword(
-                    'foo@foo.foo', 'testtesttest'
-                )
+                await this.$fire.auth.createUserWithEmailAndPassword(this.email, this.password)
 
             } catch (e) {
                 console.log(e);

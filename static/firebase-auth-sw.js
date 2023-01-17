@@ -11,7 +11,7 @@ firebase.initializeApp({"apiKey":"AIzaSyAkcPGQJYUKayLiq92XSe21_e4JrMoGHsM","auth
 // Initialize authService
 const authService = firebase.auth()
 
-authService.useEmulator('http://127.0.0.1:9099')
+authService.useEmulator('http://127.0.0.1:9096')
 
 /**
  * Returns a promise that resolves with an ID token if available.
@@ -80,7 +80,7 @@ self.addEventListener('fetch', (event) => {
       event.respondWith(
         fetch({
           ...event.request,
-          ...{ url: event.request.url.replace(/https:\/\//, 'http://127.0.0.1:9099/') }
+          ...{ url: event.request.url.replace(/https:\/\//, 'http://127.0.0.1:9096/') }
         })
       )
     } else event.respondWith(fetch(event.request))

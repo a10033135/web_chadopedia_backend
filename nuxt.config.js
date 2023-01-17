@@ -56,11 +56,17 @@ export default {
               onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION'
             },
             ssr: true, // default
-            emulatorPort: 9099,
+            emulatorPort: 9096,
             emulatorHost: 'http://127.0.0.1',
             disableEmulatorWarnings: false,
           },
-          firestore: true,
+          firestore: {
+            memoryOnly: false, // default
+            chunkName: process.env.NODE_ENV !== 'production' ? 'firebase-auth' : '[id]', // default
+            enablePersistence: true,
+            emulatorPort: 9098,
+            emulatorHost: 'localhost',
+          },
           functions: true,
           storage: true,
           database: true,

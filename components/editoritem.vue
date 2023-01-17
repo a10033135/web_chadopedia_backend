@@ -27,9 +27,8 @@ export default defineComponent({
     },
     methods: {
         a() {
-            console.log('click: ' + this.name);
-
-            this.$router.push('/' + this.link)
+            console.log('click: ' + this.link);
+            this.$router.push('' + this.link)
         }
     }
 })
