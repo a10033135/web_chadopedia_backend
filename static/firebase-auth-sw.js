@@ -11,8 +11,6 @@ firebase.initializeApp({"apiKey":"AIzaSyAkcPGQJYUKayLiq92XSe21_e4JrMoGHsM","auth
 // Initialize authService
 const authService = firebase.auth()
 
-authService.useEmulator('http://127.0.0.1:9096')
-
 /**
  * Returns a promise that resolves with an ID token if available.
  * @return {!Promise<?string>} The promise that resolves with an ID token if
@@ -76,14 +74,7 @@ self.addEventListener('fetch', (event) => {
 
   // https://github.com/nuxt-community/firebase-module/issues/465
   if (!expectsHTML || !isSameOrigin || !isHttps || isIgnored) {
-    if (event.request.url.startsWith('https://www.googleapis.com/identitytoolkit/')) {
-      event.respondWith(
-        fetch({
-          ...event.request,
-          ...{ url: event.request.url.replace(/https:\/\//, 'http://127.0.0.1:9096/') }
-        })
-      )
-    } else event.respondWith(fetch(event.request))
+      event.respondWith(fetch(event.request))
 
     return
   }
