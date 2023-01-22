@@ -62,7 +62,7 @@ export default {
 
             try {
                 const user = await this.$fire.auth.signInWithEmailAndPassword(this.email, this.password);
-                this.$router.push("/EditorPage/MainCategoryContent")
+                this.$router.push("/editor/MainCategoryContent")
             } catch (e) {
                 console.log(e);
             }

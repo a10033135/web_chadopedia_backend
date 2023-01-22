@@ -7,9 +7,9 @@ export default {
     },
     meta: [
       { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
-      { name: 'format-detection', content: 'telephone=no' }
+      { main_id: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { hid: 'description', main_id: 'description', content: '' },
+      { main_id: 'format-detection', content: 'telephone=no' }
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
@@ -56,11 +56,16 @@ export default {
               onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION'
             },
             ssr: true, // default
+            emulatorPort: 9099,
+            emulatorHost: 'http://127.0.0.1',
+            disableEmulatorWarnings: false,
           },
           firestore: {
             memoryOnly: false, // default
             chunkName: process.env.NODE_ENV !== 'production' ? 'firebase-auth' : '[id]', // default
             enablePersistence: true,
+            emulatorPort: 8080,
+            emulatorHost: 'localhost',
           },
           functions: true,
           storage: true,

@@ -19,9 +19,9 @@ export default Vue.extend({
     const user = this.$store.getters.isAuthenticated;
     console.log(user);
     if (user) {
-      this.$router.push('/EditorPage')
+      this.$router.push('/editor')
     } else {
-      this.$router.push('/SignupPage')
+      this.$router.push('/signup')
     }
   },
 });

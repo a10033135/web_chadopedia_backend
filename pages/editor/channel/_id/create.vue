@@ -1,13 +1,10 @@
 <template>
-  <div class="bg-gray-800 px-20 pt-20">
-    <div class="mb-2 ">
-      <label class="block mb-2 font-medium text-gray-900 text-white">系統編號：{{ this.title }}</label>
-      <label class="block mb-2 font-medium text-gray-900 text-white">上次更新時間：{{ this.title }}</label>
-    </div>
-    <form class="bg-gray-800 my-6" @submit.prevent="submitEditMainCat">
+  <div class="bg-gray-800 px-20 py-10">
+    <h1>{{ main_id }}</h1>
+    <form class="bg-gray-800 my-6" @submit.prevent="createSubCate">
 
       <div class="mb-6">
-        <label for="email" class="block mb-2 text-white">主分類名稱</label>
+        <label for="email" class="block mb-2 text-white">副分類名稱</label>
         <input type="text" id="email" v-model="title"
                class="input text-white w-full " placeholder="ex: 茶茗" required>
       </div>
@@ -35,21 +32,19 @@
 
     </form>
 
-
-    <button class="btn">Cancel</button>
-    <button class="btn btn-outline btn-error my-6">Delete</button>
+    <button class="btn" v-on:click="cancel">Cancel</button>
   </div>
 </template>
 
 <script lang="ts">
-
-import Vue from "vue"
-import {getFirestore} from "firebase/firestore";
+import Vue from "vue";
+import {SubCategory} from "~/model/SubCategory";
 import firebase from "firebase/compat";
 
 export default Vue.extend({
   data() {
     return {
+      main_id: this.$route.path.split('/')[3],
       title: '',
       desc: '',
       image_url: '',
@@ -57,10 +52,11 @@ export default Vue.extend({
     };
   },
   methods: {
-    submitEditMainCat() {
+    createSubCate() {
       this.$fire.firestore
-        .collection('MainCate')
+        .collection('SubCate')
         .add({
+          'main_cate_id': this.main_id,
           'title': this.title,
           'desc': this.desc,
           'image_url': this.image_url,
@@ -69,9 +65,12 @@ export default Vue.extend({
           'update_time': firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(document => {
-          this.$router.push('/EditorPage/MainCategoryContent')
+          this.$router.back()
         })
     },
-  },
+    cancel() {
+      this.$router.back()
+    }
+  }
 })
 </script>

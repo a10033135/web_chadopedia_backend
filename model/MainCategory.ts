@@ -1,5 +1,4 @@
 import firebase from "firebase/compat";
-import DocumentData = firebase.firestore.DocumentData;
 import QueryDocumentSnapshot = firebase.firestore.QueryDocumentSnapshot;
 
 export class MainCategory {
@@ -30,7 +29,7 @@ export function doc2MainCategory(doc: QueryDocumentSnapshot): MainCategory {
   const data = doc.data()
   console.log(doc)
   console.log(data)
-  const id = doc['id'] ?? ''
+  const id = doc.id ?? ''
   const title = data['title'] ?? ''
   const desc = data['desc'] ?? ''
   const enable = data['enable'] ?? false

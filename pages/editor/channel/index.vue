@@ -1,32 +1,9 @@
 <template>
   <div>
     <h1>MainCategoryContent</h1>
-    <label for="default-search"
-           class="mb-2 text-sm font-medium text-gray-900 sr-only text-white">Search</label>
-    <div class="relative">
-      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-        <svg aria-hidden="true" class="w-5 h-5 text-gray-500 text-gray-400" fill="none"
-             stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-      </div>
-      <form>
-
-        <input type="search" id="default-search"
-               class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-               placeholder="Search Mockups, Logos..." required>
-        <button type="submit"
-                class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 bg-blue-600 hover:bg-blue-700 focus:ring-blue-800">
-          Search
-        </button>
-      </form>
-
-    </div>
-
     <p> - - - </p>
 
-    <nuxt-link to="/EditorPage/EditMainCategoryContent">新增主分類</nuxt-link>
+    <nuxt-link class="btn btn-outline btn-success w-1/5 my-5" to="/editor/channel/create">新增</nuxt-link>
 
     <div class="overflow-x-auto ">
       <table class="table w-full">
@@ -38,23 +15,24 @@
           <th class="bg-blue-300 text-white">系統編號</th>
           <th class="bg-blue-300 text-white">主標題</th>
           <th class="bg-blue-300 text-white">是否上架</th>
-          <th class="bg-blue-300 text-white">更新時間</th>
-          <th class="bg-blue-300 text-white">描述</th>
           <th class="bg-blue-300 text-white">編輯</th>
         </tr>
         </thead>
 
         <tbody>
-        <tr v-for="(item , index) in main_categories">
-          <th class="bg-blue-300 text-white">{{ index + 1 }}</th>
-          <th class="bg-gray-400 text-white">{{ item.id }}</th>
-          <td class="bg-gray-400 text-white">{{ item.title }}</td>
-          <td class="bg-gray-400 text-red-300">{{ item.enable }}</td>
-          <td class="bg-gray-400 text-white">{{ item.create_time }}</td>
-          <td class="bg-gray-400 text-white">{{ item.desc }}</td>
+        <tr v-for="(item , index) in main_cate_list" v-on:click="clickEditMainCat(item)">
+          <th class="bg-blue-300 text-white text-sm">{{ index + 1 }}</th>
+          <th class="bg-gray-400 text-white text-sm">{{ item.id.substring(0, 5) }}</th>
+          <td class="bg-gray-400 text-white">
+            <nuxt-link v-bind:to="`/editor/channel/`+item.id" class="hover:text-red-200">{{ item.title }}</nuxt-link>
+          </td>
+          <td class="bg-gray-400 text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
           <td class="bg-gray-400 text-white ">
             <!-- The button to open modal -->
-            <label for="my-modal" class="btn" v-on:click="clickEditMainCat(item)">編輯</label>
+            <label for="my-modal" class="badge badge-outline hover:bg-white hover:text-black"
+                   v-on:click="clickEditMainCat(item)">編輯</label>
+            <label class="badge badge-outline badge-error hover:bg-red-800 hover:text-white"
+                   v-on:click="removeMainCat(item)">刪除</label>
 
             <!-- Put this part before </body> tag -->
             <input type="checkbox" id="my-modal" class="modal-toggle"/>
@@ -90,10 +68,13 @@
                   </div>
 
                   <button class="btn btn-success w-full" v-model:onclick="submitEditMainCat">修改</button>
-
                 </form>
                 <div class="modal-action">
-                  <label for="my-modal" class="btn">關閉</label>
+                  <label for="my-modal" class="btn btn-outline btn-error my-6 w-full"
+                         v-on:click="removeMainCat(item)">Delete</label>
+                </div>
+                <div class="modal-action">
+                  <label for="my-modal" class="btn w-full" v-on:click="getData">關閉</label>
                 </div>
               </div>
             </div>
@@ -119,21 +100,23 @@ export default Vue.extend({
 
   data() {
     return {
-      main_categories: [] as MainCategory [],
+      main_cate_list: [] as MainCategory [],
       edit_category: new MainCategory('', '', '', false, '', 0, 0)
     };
   },
   created() {
-    this.$fire.firestore
-      .collection('MainCate')
-      .get()
-      .then(querySnapShot => {
-        this.main_categories = querySnapShot.docs.map(doc2MainCategory)
-        console.log(this.main_categories)
-      })
-
+    this.getData()
   },
   methods: {
+    getData() {
+      this.$fire.firestore
+        .collection('MainCate')
+        .get()
+        .then(querySnapShot => {
+          this.main_cate_list = querySnapShot.docs.map(doc2MainCategory)
+          console.log(this.main_cate_list)
+        })
+    },
     clickEditMainCat(item: MainCategory) {
       this.edit_category = item
     },
@@ -150,8 +133,18 @@ export default Vue.extend({
           'update_time': firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(result => {
+          this.getData()
         })
-
+    },
+    removeMainCat(item: MainCategory) {
+      console.log('removeMainCat')
+      this.$fire.firestore
+        .collection('MainCate')
+        .doc(item.id)
+        .delete()
+        .then(result => {
+          this.getData()
+        })
     }
   }
 
