@@ -26,7 +26,7 @@ export default Vue.extend({
       user: null,
       isLoggedIn: false,
       test: [] = [
-        { main_id: '主分類', link: '/editor/channel' },
+        { main_id: '分類', link: '/editor/channel' },
         { main_id: '內容', link: '/editor/content' }]
     };
   },

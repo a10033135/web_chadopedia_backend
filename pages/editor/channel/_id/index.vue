@@ -27,14 +27,13 @@
         <tr v-for="(item , index) in sub_cate_list">
           <th class="bg-blue-300 text-white text-sm">{{ index + 1 }}</th>
           <th class="bg-gray-400 text-white text-sm">{{ item.id.substring(0, 5) }}</th>
-          <td class="bg-gray-400 text-white">
-            <nuxt-link v-bind:to="`/editor/channel/`+item.id" class="hover:text-red-200">{{ item.title }}</nuxt-link>
-          </td>
+          <td class="bg-gray-400 text-white">{{ item.title }}</td>
           <td class="bg-gray-400 text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
           <td class="bg-gray-400 text-white ">
             <!-- The button to open modal -->
             <label for="my-modal" class="badge badge-outline hover:bg-white hover:text-black">編輯</label>
-            <label class="badge badge-outline badge-error hover:bg-red-800 hover:text-white">刪除</label>
+            <label class="badge badge-outline badge-error hover:bg-red-800 hover:text-white"
+                   @click="deleteSubCate(item)">刪除</label>
 
             <!-- Put this part before </body> tag -->
             <input type="checkbox" id="my-modal" class="modal-toggle"/>
@@ -44,8 +43,8 @@
                 <form class="my-6">
 
                   <div class="mb-6">
-                    <label for="email" class="block mb-2 text-white">主分類名稱</label>
-                    <input type="text" id="email" class="input text-white w-full " placeholder="ex: 茶茗" required>
+                    <label for="email" class="block mb-2 text-white">副分類名稱</label>
+                    <input type="text" id="email" class="input text-white w-full" placeholder="ex: 茶茗" required>
                   </div>
 
                   <div class="mb-6">
@@ -67,7 +66,7 @@
                     >
                   </div>
 
-                  <button class="btn btn-success w-full" >修改</button>
+                  <button class="btn btn-success w-full">修改</button>
                 </form>
                 <div class="modal-action">
                   <label for="my-modal" class="btn btn-outline btn-error my-6 w-full">Delete</label>
@@ -116,6 +115,15 @@ export default Vue.extend({
         .then(querySnapShot => {
           this.sub_cate_list = querySnapShot.docs.map(doc2SubCategory)
           console.log(this.sub_cate_list)
+        })
+    },
+    deleteSubCate(item: SubCategory) {
+      this.$fire.firestore
+        .collection('SubCate')
+        .doc(item.id)
+        .delete()
+        .then(result => {
+          this.getData()
         })
     }
   }
