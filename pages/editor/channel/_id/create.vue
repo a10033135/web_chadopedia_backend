@@ -17,7 +17,7 @@
       <div class="mb-6">
         <label for="url" class="block mb-2 text-white">主分類圖片</label>
         <input type="url" id="url" v-model="image_url"
-               class="input text-white w-full "
+               class="input text-white w-full"
                placeholder="google driver">
       </div>
 
