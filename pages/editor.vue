@@ -25,7 +25,7 @@ export default Vue.extend({
     return {
       user: null,
       isLoggedIn: false,
-      test: [] = [
+      selected_categories: [] = [
         { main_id: '  分類', link: '/editor/channel' },
         { main_id: '內容', link: '/editor/content' }]
     };

@@ -21,27 +21,33 @@
                type="url" id="image_url" v-model="image_url">
       </div>
 
-      <div>
-        <div class="p-4 w-80  bg-base-100">
-          <ul v-for="item in main_categories" class="my-2">
-            <li>
-              <input type="checkbox" checked="checked"
-                     class="checkbox checkbox-error"
-                     @change="onMainCategoryCheckboxChange(item,$event.target.checked)"/>
-              <span class="label-text">{{ item.title }}</span>
-            </li>
-            <li v-for="subItem in getSelectedCategories(item.id)"
-                class="mx-8">
-              <input type="checkbox" checked="checked"
-                     class="checkbox checkbox-success"
-                     @change="onSubCategoryCheckboxChange(item,subItem,$event.target.checked)"/>
-              <span class="label-text">{{ subItem.title }}</span>
-            </li>
-          </ul>
-        </div>
+      <div class="p-4 w-full  bg-base-100">
+        <ul v-for="item in main_categories" class="my-2">
+          <li>
+            <input type="checkbox" class="checkbox checkbox-error"
+                   @change="onMainCategoryCheckboxChange(item,$event.target.checked)"/>
+            <span class="label-text">{{ item.title }}</span>
+          </li>
+          <li v-for="subItem in getSelectedCategories(item.id,sub_categories)"
+              class="mx-8">
+            <input type="checkbox" class="checkbox checkbox-success"
+                   @change="onSubCategoryCheckboxChange(item,subItem,$event.target.checked)"/>
+            <span class="label-text">{{ subItem.title }}</span>
+          </li>
+        </ul>
       </div>
 
-      <div class="p-4 w-80 bg-base-100 my-5">
+      <div class="p-4 w-full bg-base-100 my-5 h-100">
+        <div
+          class="text-white"
+          v-for="(select_main_category,index) in this.selected_main_categories">
+          {{ select_main_category.title }}
+        </div>
+        <div
+          class="text-white"
+          v-for="(select_sub_category,index) in selected_sub_categories">
+          {{ getMainCategoryTitle(select_sub_category.main_cate_id) }} => {{ select_sub_category.title }}
+        </div>
 
       </div>
 
@@ -51,7 +57,7 @@
                type="checkbox" v-model="enable">
       </div>
 
-      <button class="btn btn-success w-full">Submit</button>
+      <button class="btn btn-success w-full" @click="onSubmitClick">Submit</button>
 
     </form>
 
@@ -66,6 +72,7 @@ import Vue from 'vue';
 import {ContentCategory} from "~/model/MatchaContent";
 import {doc2MainCategory, MainCategory} from "~/model/MainCategory";
 import {doc2SubCategory, SubCategory} from "~/model/SubCategory";
+import firebase from "firebase/compat";
 
 export default Vue.extend({
   data() {
@@ -77,11 +84,8 @@ export default Vue.extend({
       categories: [] as ContentCategory[],
       main_categories: [] as MainCategory[],
       sub_categories: [] as SubCategory[],
-      select_main_id: '請選擇',
-      select_sub_categories: [] as SubCategory[],
-      select_sub_id: '請選擇'
-      // select_main_category: new MainCategory('', '', '', false, '', 0, 0),
-      // select_sub_category: new SubCategory('', '', '', '', false, '', 0, 0)
+      selected_main_categories: [] as MainCategory[],
+      selected_sub_categories: [] as SubCategory[]
     }
   },
   created() {
@@ -109,20 +113,46 @@ export default Vue.extend({
     createContent() {
 
     },
-    getSelectedCategories(main_id: string): SubCategory[] {
-      return this.sub_categories.filter((value, index, array) => {
-        return value.main_cate_id == main_id
-      })
-
+    getSelectedCategories(main_category_id: string, sub_categories: SubCategory[]): SubCategory[] {
+      return sub_categories.filter((value) => value.main_cate_id == main_category_id)
     },
     cancel() {
       this.$router.back()
     },
     onMainCategoryCheckboxChange(main_category: MainCategory, isChecked: boolean) {
-      console.log(main_category.title, isChecked)
+      console.log(main_category.id, isChecked)
+      this.selected_main_categories = this.selected_main_categories.filter((value) => value != main_category)
+      if (isChecked) {
+        this.selected_main_categories.push(main_category)
+      }
+      this.selected_main_categories.sort((a, b) => a.id.localeCompare(b.id))
     },
     onSubCategoryCheckboxChange(main_category: MainCategory, sub_category: SubCategory, isChecked: boolean) {
-      console.log(main_category.title + sub_category.title, isChecked)
+      console.log(sub_category.id, isChecked)
+      this.selected_sub_categories = this.selected_sub_categories.filter((value) => value != sub_category)
+      if (isChecked) {
+        this.selected_sub_categories.push(sub_category)
+      }
+      this.selected_sub_categories.sort((a, b) => a.main_cate_id.localeCompare(b.main_cate_id))
+    },
+    getMainCategoryTitle(main_id: string): string {
+      return this.main_categories.find((value) => value.id == main_id)?.title ?? ''
+    },
+    onSubmitClick() {
+      console.log('onSubmitClick')
+      this.$fire.firestore
+        .collection('MatchaContent')
+        .add({
+          'title': this.title,
+          'desc': this.desc,
+          'image_url': this.image_url,
+          'enable': this.enable,
+
+          'create_time': firebase.firestore.FieldValue.serverTimestamp(),
+          'update_time': firebase.firestore.FieldValue.serverTimestamp()
+        }).then(document => {
+
+      })
     }
   }
 
