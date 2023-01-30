@@ -29,13 +29,13 @@
           <td class="bg-gray-400 text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
           <td class="bg-gray-400 text-white ">
             <!-- The button to open modal -->
-            <label for="my-modal" class="badge badge-outline hover:bg-white hover:text-black"
+            <label v-bind:for="'item_'+index" class="badge badge-outline hover:bg-white hover:text-black"
                    v-on:click="clickEditMainCat(item)">編輯</label>
             <label class="badge badge-outline badge-error hover:bg-red-800 hover:text-white"
                    v-on:click="removeMainCat(item)">刪除</label>
 
             <!-- Put this part before </body> tag -->
-            <input type="checkbox" id="my-modal" class="modal-toggle"/>
+            <input type="checkbox" v-bind:id="'item_'+index" class="modal-toggle"/>
             <div class="modal">
               <div class="modal-box w-11/12 max-w-5xl">
                 <h3 class="font-bold text-lg">系統編號：{{ edit_category.id }}</h3>
@@ -70,11 +70,11 @@
                   <button class="btn btn-success w-full" v-model:onclick="submitEditMainCat">修改</button>
                 </form>
                 <div class="modal-action">
-                  <label for="my-modal" class="btn btn-outline btn-error my-6 w-full"
+                  <label v-bind:for="'item_'+index" class="btn btn-outline btn-error my-6 w-full"
                          v-on:click="removeMainCat(item)">Delete</label>
                 </div>
                 <div class="modal-action">
-                  <label for="my-modal" class="btn w-full" v-on:click="getData">關閉</label>
+                  <label v-bind:for="'item_'+index" class="btn w-full" v-on:click="getData">關閉</label>
                 </div>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default Vue.extend({
         })
     },
     clickEditMainCat(item: MainCategory) {
-      this.edit_category = item
+      this.edit_category = new MainCategory(item.id, item.title, item.desc, item.enable, item.image_url, item.create_time, item.update_time)
     },
     submitEditMainCat() {
       console.log('submitEditMainCat: ' + this.edit_category.title + this.edit_category.enable)
