@@ -3,7 +3,7 @@
     <h1>MainCategoryContent</h1>
     <p> - - - </p>
 
-    <nuxt-link class="btn btn-outline btn-success w-1/5 my-5" to="/editor/channel/create">新增</nuxt-link>
+    <nuxt-link class="btn btn-outline my-5" to="/editor/channel/create">新增</nuxt-link>
 
     <div class="overflow-x-auto ">
       <table class="table w-full">
@@ -22,7 +22,7 @@
         <tbody>
         <tr v-for="(item , index) in main_cate_list" v-on:click="clickEditMainCat(item)">
           <th class="bg-blue-300 text-white text-sm">{{ index + 1 }}</th>
-          <th class="bg-gray-400 text-white text-sm">{{ item.id.substring(0, 5) }}</th>
+          <td class="bg-gray-400 text-white text-sm">{{ item.id.substring(0, 5) }}</td>
           <td class="bg-gray-400 text-white">
             <nuxt-link v-bind:to="`/editor/channel/`+item.id" class="hover:text-red-200">{{ item.title }}</nuxt-link>
           </td>

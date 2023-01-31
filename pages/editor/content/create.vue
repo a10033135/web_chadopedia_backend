@@ -147,19 +147,20 @@ export default Vue.extend({
           'desc': this.desc,
           'image_url': this.image_url,
           'enable': this.enable,
-
+          'main_categories': firebase.firestore.FieldValue.arrayUnion(...this.selected_main_categories.map((value) => value.id)),
+          'sub_categories': firebase.firestore.FieldValue.arrayUnion(...this.selected_sub_categories.map((value) => value.id)),
           'create_time': firebase.firestore.FieldValue.serverTimestamp(),
           'update_time': firebase.firestore.FieldValue.serverTimestamp()
-        }).then(document => {
-
-      })
+        })
+        .catch(reason => {
+          console.log(reason)
+        })
+        .then(document => {
+          this.$router.push('/editor/content')
+        })
     }
   }
 
 
 })
 </script>
-
-<style scoped>
-
-</style>

@@ -10,9 +10,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-
-console.log("test");
-
 export default Vue.extend({
   name: "IndexPage",
   created() {

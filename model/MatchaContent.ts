@@ -13,21 +13,29 @@ export class MatchaContent {
 
   image_url: string = '';
 
-  categories: ContentCategory[] = []
+  main_categories: string[] = [];
+
+  sub_categories: string[] = [];
 
   create_time: number = 0;
 
   update_time: number = 0;
 
-  constructor(id: string, title: string, desc: string, enable: boolean, image_url: string, categories: ContentCategory[], create_time: number, update_time: number) {
+
+  constructor(id: string, title: string, desc: string, enable: boolean, image_url: string, main_categories: string[], sub_categories: string[], create_time: number, update_time: number) {
     this.id = id;
     this.title = title;
     this.desc = desc;
     this.enable = enable;
     this.image_url = image_url;
-    this.categories = categories;
+    this.main_categories = main_categories;
+    this.sub_categories = sub_categories;
     this.create_time = create_time;
     this.update_time = update_time;
+  }
+
+  static newInstance(): MatchaContent {
+    return new MatchaContent('', '', '', false, '', [], [], 0, 0)
   }
 }
 
@@ -54,8 +62,9 @@ export function doc2ContentDetail(doc: QueryDocumentSnapshot): MatchaContent {
   const desc = data['desc'] ?? ''
   const enable = data['enable'] ?? false
   const image_url = data['image_url'] ?? ''
-  const categories = data['categories'] ?? ([] as ContentCategory[])
+  const main_categories = data['main_categories'] ?? ([] as string[])
+  const sub_categories = data['sub_categories'] ?? ([] as string[])
   // const create_time = data['create_time'].seconds ?? 0
   // const update_time = data['update_time'].seconds ?? 0
-  return new MatchaContent(id, title, desc, enable, image_url, categories, 0, 0)
+  return new MatchaContent(id, title, desc, enable, image_url, main_categories, sub_categories, 0, 0)
 }
