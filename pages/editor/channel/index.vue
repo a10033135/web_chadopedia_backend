@@ -12,22 +12,22 @@
         <thead>
         <tr>
           <th></th>
-          <th class="bg-blue-300 text-white">系統編號</th>
-          <th class="bg-blue-300 text-white">主標題</th>
-          <th class="bg-blue-300 text-white">是否上架</th>
-          <th class="bg-blue-300 text-white">編輯</th>
+          <th class="text-white">系統編號</th>
+          <th class="text-white">主標題</th>
+          <th class="text-white">是否上架</th>
+          <th class="text-white">編輯</th>
         </tr>
         </thead>
 
         <tbody>
         <tr v-for="(item , index) in main_cate_list" v-on:click="clickEditMainCat(item)">
-          <th class="bg-blue-300 text-white text-sm">{{ index + 1 }}</th>
-          <td class="bg-gray-400 text-white text-sm">{{ item.id.substring(0, 5) }}</td>
-          <td class="bg-gray-400 text-white">
+          <td class="text-white text-sm">{{ index + 1 }}</td>
+          <td class="text-white text-sm">{{ item.id.substring(0, 5) }}</td>
+          <td class="text-white">
             <nuxt-link v-bind:to="`/editor/channel/`+item.id" class="hover:text-red-200">{{ item.title }}</nuxt-link>
           </td>
-          <td class="bg-gray-400 text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
-          <td class="bg-gray-400 text-white ">
+          <td class="text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
+          <td class="text-white ">
             <!-- The button to open modal -->
             <label v-bind:for="'item_'+index" class="badge badge-outline hover:bg-white hover:text-black"
                    v-on:click="clickEditMainCat(item)">編輯</label>

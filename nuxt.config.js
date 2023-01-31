@@ -58,11 +58,14 @@ export default {
             ssr: true, // default
             emulatorHost: 'http://127.0.0.1',
             disableEmulatorWarnings: false,
+            emulatorPort: 9091,
           },
           firestore: {
             memoryOnly: false, // default
             chunkName: process.env.NODE_ENV !== 'production' ? 'firebase-auth' : '[id]', // default
             enablePersistence: true,
+            emulatorPort: 9092,
+            emulatorHost: 'localhost',
           },
           functions: true,
           storage: true,

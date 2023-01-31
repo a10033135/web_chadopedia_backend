@@ -163,15 +163,15 @@ export default Vue.extend({
       this.$router.back()
     },
     onMainCategoryCheckboxChange(main_category: MainCategory, isChecked: boolean) {
-      console.log(main_category.id, isChecked)
-      this.edit_matcha_content.main_categories.filter((value) => main_category.id === value)
+      console.log(main_category.id, this.edit_matcha_content.main_categories)
+      this.edit_matcha_content.main_categories = this.edit_matcha_content.main_categories.filter((value) => main_category.id != value)
       if (isChecked) {
         this.edit_matcha_content.main_categories.push(main_category.id)
       }
     },
     onSubCategoryCheckboxChange(main_category: MainCategory, sub_category: SubCategory, isChecked: boolean) {
-      console.log(sub_category.id, isChecked)
-      this.edit_matcha_content.sub_categories.filter((value) => sub_category.id === value)
+      console.log(sub_category.id, this.edit_matcha_content.sub_categories)
+      this.edit_matcha_content.sub_categories = this.edit_matcha_content.sub_categories.filter((value) => sub_category.id != value)
       if (isChecked) {
         this.edit_matcha_content.sub_categories.push(sub_category.id)
       }

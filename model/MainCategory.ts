@@ -23,6 +23,10 @@ export class MainCategory {
     this.create_time = create_time
     this.update_time = update_time
   }
+
+  static newInstance(): MainCategory {
+    return new MainCategory('', '', '', false, '', 0, 0)
+  }
 }
 
 export function doc2MainCategory(doc: QueryDocumentSnapshot): MainCategory {
