@@ -8,21 +8,21 @@
       <table class="table w-full">
         <thead>
         <tr>
-          <th></th>
-          <th class="text-white">系統編號</th>
-          <th class="text-white">主標題</th>
-          <th class="text-white">是否上架</th>
-          <th class="text-white">編輯</th>
+          <th class="bg-gray-400 text-white"></th>
+          <th class="bg-gray-400 text-white">系統編號</th>
+          <th class="bg-gray-400 text-white">主標題</th>
+          <th class="bg-gray-400 text-white">是否上架</th>
+          <th class="bg-gray-400 text-white">編輯</th>
         </tr>
         </thead>
 
         <tbody>
         <tr v-for="(item,index) in matcha_contents">
-          <td class="text-white text-sm">{{ index + 1 }}</td>
-          <td class="text-white text-sm">{{ item.id.substring(0, 5) }}</td>
-          <td class="text-white">{{ item.title }}</td>
-          <td class="text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
-          <td class="text-white hover:text-blue-200">
+          <td class="text-sm bg-gray-600 text-white">{{ index + 1 }}</td>
+          <td class="text-sm bg-gray-600 text-white">{{ item.id.substring(0, 5) }}</td>
+          <td class="bg-gray-600 text-white">{{ item.title }}</td>
+          <td class="text-red-300 bg-gray-600">{{ item.enable ? '上架' : '下架' }}</td>
+          <td class="hover:text-blue-200 bg-gray-600">
             <!-- The button to open modal -->
             <label for="modal"
                    class="btn btn-xs btn-outline btn-success hover:btn-success"
@@ -98,8 +98,10 @@
                      type="checkbox" v-model="edit_matcha_content.enable">
             </div>
 
-            <button class="btn btn-success w-full" @click="onSubmitEditClick">Submit</button>
           </form>
+        </div>
+        <div class="modal-action my-2">
+          <label for="modal" class="btn btn-success w-full" @click="onSubmitEditClick">Submit</label>
         </div>
         <div class="modal-action  my-2">
           <label for="modal" class="btn btn-outline btn-error w-full" @click="onRemoveItemClick(edit_matcha_content)">Delete</label>
@@ -190,13 +192,14 @@ export default Vue.extend({
       this.$fire.firestore
         .collection('MatchaContent')
         .doc(this.edit_matcha_content.id)
-        .set({
+        .update({
           'title': this.edit_matcha_content.title,
           'desc': this.edit_matcha_content.desc,
           'image_url': this.edit_matcha_content.image_url,
           'enable': this.edit_matcha_content.enable,
           'main_categories': firebase.firestore.FieldValue.arrayUnion(...this.edit_matcha_content.main_categories),
           'sub_categories': firebase.firestore.FieldValue.arrayUnion(...this.edit_matcha_content.sub_categories),
+          'create_time': this.edit_matcha_content.create_time,
           'update_time': firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(result => {

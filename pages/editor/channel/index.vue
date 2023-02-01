@@ -11,23 +11,23 @@
         <!-- head -->
         <thead>
         <tr>
-          <th></th>
-          <th class="text-white">系統編號</th>
-          <th class="text-white">主標題</th>
-          <th class="text-white">是否上架</th>
-          <th class="text-white">編輯</th>
+          <th class="bg-gray-400 text-white"></th>
+          <th class="bg-gray-400 text-white">系統編號</th>
+          <th class="bg-gray-400 text-white">主標題</th>
+          <th class="bg-gray-400 text-white">是否上架</th>
+          <th class="bg-gray-400 text-white">編輯</th>
         </tr>
         </thead>
 
         <tbody>
         <tr v-for="(item , index) in main_cate_list" v-on:click="clickEditMainCat(item)">
-          <td class="text-white text-sm">{{ index + 1 }}</td>
-          <td class="text-white text-sm">{{ item.id.substring(0, 5) }}</td>
-          <td class="text-white">
+          <td class="text-sm bg-gray-600 text-white">{{ index + 1 }}</td>
+          <td class="text-sm bg-gray-600 text-white">{{ item.id.substring(0, 5) }}</td>
+          <td class="bg-gray-600 text-white">
             <nuxt-link v-bind:to="`/editor/channel/`+item.id" class="hover:text-red-200">{{ item.title }}</nuxt-link>
           </td>
-          <td class="text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
-          <td class="text-white ">
+          <td class="text-red-300 bg-gray-600">{{ item.enable ? '上架' : '下架' }}</td>
+          <td class="bg-gray-600">
             <!-- The button to open modal -->
             <label v-bind:for="'item_'+index" class="badge badge-outline hover:bg-white hover:text-black"
                    v-on:click="clickEditMainCat(item)">編輯</label>
@@ -67,8 +67,12 @@
                     >
                   </div>
 
-                  <button class="btn btn-success w-full" v-model:onclick="submitEditMainCat">修改</button>
                 </form>
+                <div class="modal-action">
+                  <label v-bind:for="'item_'+index" class="btn btn-success w-full"
+                         v-on:click="submitEditMainCat()">修改</label>
+                </div>
+
                 <div class="modal-action">
                   <label v-bind:for="'item_'+index" class="btn btn-outline btn-error my-6 w-full"
                          v-on:click="removeMainCat(item)">Delete</label>
@@ -130,6 +134,7 @@ export default Vue.extend({
           'desc': this.edit_category.desc,
           'image_url': this.edit_category.image_url,
           'enable': this.edit_category.enable,
+          'create_time': this.edit_category.create_time,
           'update_time': firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(result => {

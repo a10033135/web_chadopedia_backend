@@ -15,29 +15,29 @@
         <!-- head -->
         <thead>
         <tr>
-          <th></th>
-          <th class=" text-white">系統編號</th>
-          <th class=" text-white">主標題</th>
-          <th class=" text-white">是否上架</th>
-          <th class=" text-white">編輯</th>
+          <th class="bg-gray-400 text-white"></th>
+          <th class="bg-gray-400 text-white">系統編號</th>
+          <th class="bg-gray-400 text-white">主標題</th>
+          <th class="bg-gray-400 text-white">是否上架</th>
+          <th class="bg-gray-400 text-white">編輯</th>
         </tr>
         </thead>
 
         <tbody>
         <tr v-for="(item , index) in sub_cate_list">
-          <td class=" text-white text-sm">{{ index + 1 }}</td>
-          <td class=" text-white text-sm">{{ item.id.substring(0, 5) }}</td>
-          <td class=" text-white">{{ item.title }}</td>
-          <td class=" text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
-          <td class=" text-white ">
+          <td class="text-sm bg-gray-600 text-white">{{ index + 1 }}</td>
+          <td class="text-sm bg-gray-600 text-white">{{ item.id.substring(0, 5) }}</td>
+          <td class="bg-gray-600 text-white">{{ item.title }}</td>
+          <td class="bg-gray-600 text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
+          <td class="bg-gray-600 text-white">
             <!-- The button to open modal -->
-            <label for="my-modal" class="badge badge-outline hover:bg-white hover:text-black"
+            <label v-bind:for="'modal_'+index" class="badge badge-outline hover:bg-white hover:text-black"
                    @click="clickEditSubCate(item)">編輯</label>
             <label class="badge badge-outline badge-error hover:bg-red-800 hover:text-white"
                    @click="deleteSubCate(item)">刪除</label>
 
             <!-- Put this part before </body> tag -->
-            <input type="checkbox" id="my-modal" class="modal-toggle"/>
+            <input type="checkbox" v-bind:id="'modal_'+index" class="modal-toggle"/>
             <div class="modal">
               <div class="modal-box w-11/12 max-w-5xl">
                 <h3 class="font-bold text-lg">系統編號：{{ edit_sub_cate.id }}</h3>
@@ -45,12 +45,14 @@
 
                   <div class="mb-6">
                     <label for="email" class="block mb-2 text-white">副分類名稱</label>
-                    <input type="text" id="email" class="input text-white w-full" placeholder="ex: 茶茗" required>
+                    <input type="text" id="email" class="input text-white w-full" v-model="edit_sub_cate.title"
+                           placeholder="ex: 茶茗" required>
                   </div>
 
                   <div class="mb-6">
                     <label for="email" class="block mb-2 text-white">描述</label>
-                    <input type="text" placeholder="簡單描述" class="input text-white w-full"/>
+                    <input type="text" placeholder="簡單描述" v-model="edit_sub_cate.desc"
+                           class="input text-white w-full"/>
                   </div>
 
                   <div class="mb-6">
@@ -69,13 +71,14 @@
 
                 </form>
                 <div class="modal-action">
-                  <label for="my-modal" class="btn btn-success w-full" @click="clickSubmitEditCate">修改</label>
+                  <label v-bind:for="'modal_'+index" class="btn btn-success w-full"
+                         v-on:click="clickSubmitEditCate()">修改</label>
                 </div>
                 <div class="modal-action">
-                  <label for="my-modal" class="btn btn-outline btn-error my-6 w-full">Delete</label>
+                  <label v-bind:for="'modal_'+index" class="btn btn-outline btn-error my-6 w-full">Delete</label>
                 </div>
                 <div class="modal-action">
-                  <label for="my-modal" class="btn w-full" v-on:click="getData">關閉</label>
+                  <label v-bind:for="'modal_'+index" class="btn w-full" @click="getData">關閉</label>
                 </div>
               </div>
             </div>
@@ -95,6 +98,7 @@
 import Vue from 'vue';
 import {SubCategory, doc2SubCategory} from "~/model/SubCategory";
 import {doc2MainCategory, MainCategory} from "~/model/MainCategory";
+import firebase from "firebase/compat";
 
 
 export default Vue.extend({
@@ -103,7 +107,7 @@ export default Vue.extend({
       id: '',
       main_title: '',
       sub_cate_list: [] as SubCategory[],
-      edit_sub_cate: new SubCategory('', '', '', '', false, '', 0, 0)
+      edit_sub_cate: SubCategory.newInstance()
     }
   },
   created() {
@@ -138,13 +142,16 @@ export default Vue.extend({
     },
     clickSubmitEditCate() {
       this.$fire.firestore
-        .collection('SUbCate')
+        .collection('SubCate')
         .doc(this.edit_sub_cate.id)
-        .set({
-          title: this.edit_sub_cate.title,
-          desc: this.edit_sub_cate.desc,
-          image_url: this.edit_sub_cate.image_url,
-          update_time: this.edit_sub_cate.update_time
+        .update({
+          'main_cate_id': this.edit_sub_cate.main_cate_id,
+          'title': this.edit_sub_cate.title,
+          'desc': this.edit_sub_cate.desc,
+          'image_url': this.edit_sub_cate.image_url,
+          'enable': this.edit_sub_cate.enable,
+          'create_time': this.edit_sub_cate.create_time,
+          'update_time': firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(result => {
           this.getData()

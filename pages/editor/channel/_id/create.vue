@@ -48,7 +48,8 @@ export default Vue.extend({
       title: '',
       desc: '',
       image_url: '',
-      enable: true
+      enable: true,
+      edit_sub_category :SubCategory.newInstance()
     };
   },
   methods: {

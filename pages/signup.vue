@@ -6,7 +6,7 @@
         </h2>
       </div>
       <div class="space-y-4">
-        <div class="-space-y-px rounded-md shadow-sm">
+        <div class="space-y-px rounded-md shadow-sm">
           <div>
             <label for="email-address" class="sr-only">Email address</label>
             <input id="email-address" name="email" type="email" autocomplete="email" required=""
@@ -73,7 +73,7 @@ export default {
       try {
         const user = await this.$fire.auth.signInWithEmailAndPassword('foo@foo.foo', 'testtesttest');
         console.log("user" + user);
-        this.$router.push("editor")
+        await this.$router.push("editor")
       } catch (e) {
         console.log(e);
       }

@@ -24,6 +24,10 @@ export class SubCategory {
     this.create_time = create_time;
     this.update_time = update_time;
   }
+
+  static newInstance(): SubCategory {
+    return new SubCategory('', '', '', '', false, '', 0, 0)
+  }
 }
 
 export function doc2SubCategory(doc: QueryDocumentSnapshot): SubCategory {
