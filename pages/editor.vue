@@ -34,10 +34,8 @@
 <script lang="ts">
 
 import Vue from "vue"
-import Editoritem from "~/components/editoritem.vue";
 
 import {getFirestore} from "firebase/firestore";
-import editoritem from "~/components/editoritem.vue";
 
 export default Vue.extend({
   data() {
@@ -56,6 +54,5 @@ export default Vue.extend({
       console.log(user);
     }
   },
-  components: {editoritem}
 })
 </script>
