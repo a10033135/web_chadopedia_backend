@@ -20,7 +20,7 @@
         <tr v-for="(item,index) in matcha_contents">
           <td class="text-white text-sm">{{ index + 1 }}</td>
           <td class="text-white text-sm">{{ item.id.substring(0, 5) }}</td>
-          <td class="text-white text-white">{{ item.title }}</td>
+          <td class="text-white">{{ item.title }}</td>
           <td class="text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
           <td class="text-white hover:text-blue-200">
             <!-- The button to open modal -->

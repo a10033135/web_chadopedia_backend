@@ -19,6 +19,7 @@ import Vue from "vue"
 import Editoritem from "~/components/editoritem.vue";
 
 import {getFirestore} from "firebase/firestore";
+import editoritem from "~/components/editoritem.vue";
 
 export default Vue.extend({
   data() {
@@ -31,15 +32,12 @@ export default Vue.extend({
       ]
     };
   },
-  async created() {
-
-  },
   methods: {
     auth() {
       const user = this.$store.state.user.uid;
       console.log(user);
     }
   },
-  components: {Editoritem}
+  components: {editoritem}
 })
 </script>

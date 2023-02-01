@@ -119,7 +119,10 @@ export default Vue.extend({
         .get()
         .then(querySnapShot => {
           console.log(querySnapShot)
-          this.main_title = (querySnapShot.data() ?? '')['title'] as string
+          const data = querySnapShot.data()
+          if (data) {
+            this.main_title = data['title'] ?? ''
+          }
         })
       this.$fire.firestore
         .collection('SubCate')

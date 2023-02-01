@@ -143,7 +143,18 @@ export default Vue.extend({
         .doc(item.id)
         .delete()
         .then(result => {
-          this.getData()
+          this.$fire.firestore
+            .collection('SubCate')
+            .where('main_cate_id', '==', item.id)
+            .get()
+            .then(querySnapShot => {
+              querySnapShot.forEach((value) => {
+                value.ref.delete()
+              })
+            })
+            .then(result => {
+              this.getData()
+            })
         })
     }
   }
