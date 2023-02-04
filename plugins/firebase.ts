@@ -18,12 +18,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     const firebaseApp = firebase.initializeApp(firebaseConfig)
 
     const fireAuth = getAuth(firebaseApp)
-    connectAuthEmulator(fireAuth, 'http://127.0.0.1:9099')
+    // connectAuthEmulator(fireAuth, 'http://127.0.0.1:9099')
 
     const firestore = getFirestore(firebaseApp)
-    if (!firestore._settingsFrozen) {
-        connectFirestoreEmulator(firestore, '127.0.0.1', 8080)
-    }
+    // if (!firestore._settingsFrozen) {
+    //     connectFirestoreEmulator(firestore, '127.0.0.1', 8080)
+    // }
 
 
     return {
