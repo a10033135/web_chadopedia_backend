@@ -1,6 +1,14 @@
 {
+  "functions": {
+    "source": ".output/server",
+    "runtime": "nodejs16",
+    "codebase": "nuxt",
+    "predeploy": ["cd .output/server && npm install"]
+  },
   "hosting": {
-    "public": "public",
+    "site": "chadopedia",
+    "public": ".output/public",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -9,7 +17,7 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "function": "server"
       }
     ]
   }
