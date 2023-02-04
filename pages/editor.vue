@@ -1,5 +1,25 @@
+<script setup lang="ts">
+import {useNuxtApp} from "#app";
+import {firestore} from "~/stores/firestore";
+
+const {$firestore} = useNuxtApp()
+const fire_store = firestore()
+
+fire_store.update_main_categories($firestore)
+fire_store.update_sub_categories($firestore)
+fire_store.update_chado_contents($firestore)
+
+
+const state = reactive({
+  selected_categories: [] = [
+    {main_id: '分類', link: '/editor/channel'},
+    {main_id: '內容', link: '/editor/content'}
+  ]
+})
+
+</script>
+
 <template>
-  <!-- component -->
   <div>
     <div class="navbar bg-base-100">
       <div class="flex-none">
@@ -12,7 +32,7 @@
           </label>
           <ul tabindex="0"
               class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
-            <li v-for="item in selected_categories">
+            <li v-for="item in state.selected_categories">
               <NuxtLink :to="item.link">{{ item.main_id }}</NuxtLink>
             </li>
 
@@ -20,39 +40,14 @@
         </div>
       </div>
       <div class="flex-1">
-        <a class="mx-5 normal-case text-xl">{{ this.$route.name}}</a>
+        <a class="mx-5 normal-case text-xl">{{ this.$route.name }}</a>
       </div>
     </div>
-    <main class="main flex flex-col flex-grow -ml-32 md:ml-0 transition-all duration-150 ease-in">
+    <main class="main flex flex-col flex-grow  transition-all duration-150 ease-in">
       <div class="main-content flex flex-col flex-grow">
-        <Nuxt class="h-max flex flex-col flex-grow bg-gray-800 rounded p-8"></Nuxt>
+        <NuxtPage class="h-max flex flex-col flex-grow bg-gray-800 rounded p-8"></NuxtPage>
       </div>
     </main>
   </div>
 </template>
 
-<script lang="ts">
-
-import Vue from "vue"
-
-import {getFirestore} from "firebase/firestore";
-
-export default Vue.extend({
-  data() {
-    return {
-      user: null,
-      isLoggedIn: false,
-      selected_categories: [] = [
-        {main_id: '分類', link: '/editor/channel'},
-        {main_id: '內容', link: '/editor/content'}
-      ]
-    };
-  },
-  methods: {
-    auth() {
-      const user = this.$store.state.user.uid;
-      console.log(user);
-    }
-  },
-})
-</script>

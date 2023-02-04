@@ -1,3 +1,17 @@
+<script setup lang="ts">
+import {authStore} from "~/stores/auth";
+
+const state = authStore()
+const router = useRouter()
+
+if (state.isSignUp) {
+  router.push('/editor')
+} else {
+  router.push('/signup')
+}
+
+</script>
+
 <template>
   <div class="h-screen w-screen bg-black flex content-center justify-center">
     <div class="p-6 bg-white my-auto w-10/12 h-4/6 rounded-xl shadow-lg">
@@ -8,18 +22,3 @@
   </div>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-export default Vue.extend({
-  name: "IndexPage",
-  created() {
-    const user = this.$store.getters.isAuthenticated;
-    console.log(user);
-    if (user) {
-      this.$router.push('/editor')
-    } else {
-      this.$router.push('/signup')
-    }
-  },
-});
-</script>

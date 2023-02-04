@@ -1,16 +1,20 @@
 <script setup lang="ts">
 
-import {useNuxtApp, useRouter} from "#app";
 import {firestore} from "~/stores/firestore";
-import {MainCategory} from "~/model/MainCategory";
-import {addDoc, collection, doc, Timestamp, updateDoc} from "@firebase/firestore";
+import {useNuxtApp, useRoute, useRouter} from "#app";
+import {addDoc, collection, doc, getDocs, query, runTransaction, setDoc, updateDoc, where} from "@firebase/firestore";
+import firebase from "firebase/compat";
+import Timestamp = firebase.firestore.Timestamp;
+import {async} from "@firebase/util";
 
 const {$firestore} = useNuxtApp()
-const router = useRouter()
+
 const fire_store = firestore()
 
+const router = useRouter()
 
 const state = reactive({
+  main_id: useRoute().path.split('/')[3],
   title: '',
   desc: '',
   image_url: '',
@@ -19,17 +23,22 @@ const state = reactive({
 })
 
 async function submit() {
+  console.log('submit')
+  const sub_collection = collection($firestore, 'SubCate')
 
+  const sub_categories = fire_store.sub_categories
+      .filter(value => state.main_id == value.main_cate_id)
 
-  fire_store.main_categories
+  sub_categories
       .filter(value => state.sort == value.sort)
       .forEach(value => {
-        updateDoc(doc($firestore, 'MainCate', value.id), {
-          sort: fire_store.main_categories.length + 1
+        updateDoc(doc($firestore, 'SubCate', value.id), {
+          sort: sub_categories.length + 1
         })
       })
 
-  await addDoc(collection($firestore, 'MainCate'), {
+  await addDoc(sub_collection, {
+    'main_cate_id': state.main_id,
     'title': state.title,
     'desc': state.desc,
     'image_url': state.image_url,
@@ -38,21 +47,24 @@ async function submit() {
     'create_time': Timestamp.now(),
     'update_time': Timestamp.now()
   })
-  await router.push('/editor/channel')
+
+  await router.back()
 }
 
 function cancel() {
-  router.push('/editor/channel')
+  console.log('cancel')
+  router.back()
 }
 
 </script>
 
 <template>
   <div class="bg-gray-800 px-20 py-10">
+    <h1>{{ state.main_id }}</h1>
     <form class="bg-gray-800 my-6" @submit.prevent="submit">
 
       <div class="mb-6">
-        <label for="email" class="block mb-2 text-white">主分類名稱</label>
+        <label for="email" class="block mb-2 text-white">副分類名稱</label>
         <input type="text" id="email" v-model="state.title"
                class="input text-white w-full " placeholder="ex: 茶茗" required>
       </div>
@@ -65,7 +77,7 @@ function cancel() {
       <div class="mb-6">
         <label for="url" class="block mb-2 text-white">主分類圖片</label>
         <input type="url" id="url" v-model="state.image_url"
-               class="input text-white w-full "
+               class="input text-white w-full"
                placeholder="google driver">
       </div>
 
@@ -90,3 +102,4 @@ function cancel() {
     <button class="btn" v-on:click="cancel">Cancel</button>
   </div>
 </template>
+
