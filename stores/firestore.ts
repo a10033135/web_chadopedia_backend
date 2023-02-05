@@ -2,7 +2,6 @@ import {defineStore} from 'pinia';
 import {doc2MainCategory, MainCategory} from "~/model/MainCategory";
 import {doc2SubCategory, SubCategory} from "~/model/SubCategory";
 import {doc2ChadoContent, ChadoContent} from "~/model/ChadoContent";
-import firebase from "firebase/compat";
 import {collection, doc, Firestore, getDoc, getDocs, onSnapshot, orderBy, query} from "@firebase/firestore";
 import {State} from "vscode-languageclient";
 

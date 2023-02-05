@@ -5,9 +5,7 @@ import {MainCategory} from "~/model/MainCategory";
 import {SubCategory} from "~/model/SubCategory";
 import {firestore} from "~/stores/firestore";
 import {useNuxtApp, useRouter} from "#app";
-import {addDoc, collection, doc, Timestamp, updateDoc} from "@firebase/firestore";
-import firebase from "firebase/compat";
-import FieldValue = firebase.firestore.FieldValue;
+import {addDoc, arrayUnion, collection, Timestamp, updateDoc} from "@firebase/firestore";
 
 const {$firestore} = useNuxtApp()
 
@@ -39,8 +37,8 @@ async function submit() {
     'desc': state.desc,
     'image_url': state.image_url,
     'enable': state.enable,
-    'main_categories': FieldValue.arrayUnion(...state.selected_main_categories.map(value => value.id)),
-    'sub_categories': FieldValue.arrayUnion(...state.selected_sub_categories.map(value => value.id)),
+    'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
+    'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
     'create_time': Timestamp.now(),
     'update_time': Timestamp.now()
   })

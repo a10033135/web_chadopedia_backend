@@ -4,10 +4,8 @@
 import {SubCategory} from "~/model/SubCategory";
 import {firestore} from "~/stores/firestore";
 import {useNuxtApp, useRouter} from "#app";
-import {collection, deleteDoc, doc, updateDoc} from "@firebase/firestore";
+import {collection, deleteDoc, doc, Timestamp, updateDoc} from "@firebase/firestore";
 import {id} from "postcss-selector-parser";
-import firebase from "firebase/compat";
-import Timestamp = firebase.firestore.Timestamp;
 
 const {$firestore} = useNuxtApp()
 
@@ -70,7 +68,7 @@ function delete_sub_category(item: SubCategory) {
       <li>{{ state.main_category_title }}</li>
     </ul>
 
-    <nuxt-link class="btn btn-outline btn-error my-2" :to="this.$route.path+`/create`">新增</nuxt-link>
+    <nuxt-link class="btn btn-outline btn-error my-2" :to="route.path+`/create`">新增</nuxt-link>
 
     <div class="overflow-x-auto ">
       <table class="table w-full">

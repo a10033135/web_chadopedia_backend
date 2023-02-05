@@ -2,9 +2,18 @@
 
 import {firestore} from "~/stores/firestore";
 import {useNuxtApp, useRoute, useRouter} from "#app";
-import {addDoc, collection, doc, getDocs, query, runTransaction, setDoc, updateDoc, where} from "@firebase/firestore";
-import firebase from "firebase/compat";
-import Timestamp = firebase.firestore.Timestamp;
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  query,
+  runTransaction,
+  setDoc,
+  Timestamp,
+  updateDoc,
+  where
+} from "@firebase/firestore";
 import {async} from "@firebase/util";
 
 const {$firestore} = useNuxtApp()

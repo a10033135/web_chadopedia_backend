@@ -40,7 +40,6 @@ const state = reactive({
         </div>
       </div>
       <div class="flex-1">
-        <a class="mx-5 normal-case text-xl">{{ this.$route.name }}</a>
       </div>
     </div>
     <main class="main flex flex-col flex-grow  transition-all duration-150 ease-in">
