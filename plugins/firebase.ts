@@ -4,7 +4,6 @@ import firebase from "firebase/compat";
 import initializeApp = firebase.initializeApp;
 // import {initializeApp} from "@firebase/app";
 
-
 export default defineNuxtPlugin((nuxtApp) => {
     const firebaseConfig = {
         apiKey: 'AIzaSyAkcPGQJYUKayLiq92XSe21_e4JrMoGHsM',

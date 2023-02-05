@@ -6,6 +6,8 @@ import {SubCategory} from "~/model/SubCategory";
 import {firestore} from "~/stores/firestore";
 import {useNuxtApp, useRouter} from "#app";
 import {addDoc, arrayUnion, collection, Timestamp, updateDoc} from "@firebase/firestore";
+import {Coordinates, Cropper} from 'vue-advanced-cropper';
+import 'vue-advanced-cropper/dist/style.css';
 
 const {$firestore} = useNuxtApp()
 
@@ -26,7 +28,10 @@ const state = reactive({
   main_categories: fire_store.main_categories,
   sub_categories: fire_store.sub_categories,
   selected_main_categories: [] as MainCategory[],
-  selected_sub_categories: [] as SubCategory[]
+  selected_sub_categories: [] as SubCategory[],
+  show_image_upload: false,
+  image_src: '' as string | ArrayBuffer | null | undefined,
+  cropped_image: '' as string | ArrayBuffer | null | undefined
 })
 
 async function submit() {
@@ -75,6 +80,27 @@ function get_main_category_by_sub(main_cate_id: string): string {
   return state.main_categories.find((value) => value.id == main_cate_id)?.title ?? ''
 }
 
+function fileSelected(file: File) {
+  const reader = new FileReader()
+  reader.addEventListener('load', (image) => {
+    console.log(image.target?.result)
+    state.image_url = image.target?.result as string
+  })
+  reader.readAsDataURL(file)
+
+}
+
+
+function crop_image(result: { image: string, visibleArea: string, coordinates: Coordinates; canvas: HTMLCanvasElement }) {
+  state.cropped_image = result.canvas.toDataURL()
+}
+
+function cancel_crop_image(files: HTMLInputElement) {
+  state.cropped_image = ''
+  state.image_url = ''
+  files.value = ''
+}
+
 
 </script>
 
@@ -95,9 +121,21 @@ function get_main_category_by_sub(main_cate_id: string): string {
       </div>
 
       <div class="mb-6">
-        <label for="image_url" class="block mb-2 text-white">主分類圖片</label>
-        <input class="input text-white w-full"
-               type="url" id="image_url" v-model="state.image_url">
+
+        <input type="file" ref="myFiles" accept="image/jpeg, image/png"
+               @change="fileSelected($refs.myFiles.files.item(0))">
+
+        <label v-if="state.cropped_image" class="btn btn-accent btn-sm"
+               @click="cancel_crop_image($refs.myFiles)">取消</label>
+
+        <cropper class="cropper"
+                 :src="state.image_url"
+                 :stencil-props="{aspectRatio: 1}"
+                 @change="crop_image"/>
+
+        <label v-if="state.cropped_image" class="my-2">編輯結果</label>
+
+        <img v-if="state.cropped_image" class="bg-black" :src="state.cropped_image" width="200" height="200"/>
       </div>
 
       <div class="p-4 w-full  bg-base-100">
@@ -155,3 +193,13 @@ function get_main_category_by_sub(main_cate_id: string): string {
   </div>
 
 </template>
+
+<style scoped>
+.cropper {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  height: 200px;
+  width: 200px;
+  background: #DDD;
+}
+</style>
