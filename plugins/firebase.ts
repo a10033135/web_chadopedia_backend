@@ -1,6 +1,8 @@
 import {connectAuthEmulator, getAuth} from "@firebase/auth";
 import {connectFirestoreEmulator, getFirestore} from "@firebase/firestore";
-import {initializeApp} from "@firebase/app";
+import firebase from "firebase/compat";
+import initializeApp = firebase.initializeApp;
+// import {initializeApp} from "@firebase/app";
 
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -18,12 +20,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     const firebaseApp = initializeApp(firebaseConfig)
 
     const fireAuth = getAuth(firebaseApp)
-    // connectAuthEmulator(fireAuth, 'http://127.0.0.1:9099')
+    connectAuthEmulator(fireAuth, 'http://127.0.0.1:9099')
 
     const firestore = getFirestore(firebaseApp)
-    // if (!firestore._settingsFrozen) {
-    //     connectFirestoreEmulator(firestore, '127.0.0.1', 8080)
-    // }
+    if (!firestore._settingsFrozen) {
+        connectFirestoreEmulator(firestore, '127.0.0.1', 8080)
+    }
 
 
     return {

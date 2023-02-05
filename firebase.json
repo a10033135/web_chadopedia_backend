@@ -1,10 +1,4 @@
 {
-  "functions": {
-    "source": ".output/server",
-    "runtime": "nodejs16",
-    "codebase": "nuxt",
-    "predeploy": ["cd .output/server && npm install"]
-  },
   "hosting": {
     "site": "chadopedia",
     "public": ".output/public",
@@ -16,9 +10,7 @@
     ],
     "rewrites": [
       {
-        "source": "**",
-        "function": "server"
-      }
+        "source": "**"}
     ]
   }
 }
