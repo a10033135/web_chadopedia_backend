@@ -5,7 +5,7 @@ const state = authStore()
 const router = useRouter()
 
 if (state.isSignUp) {
-  router.push('/editor')
+  router.push('/editor/content')
 } else {
   router.push('/signup')
 }

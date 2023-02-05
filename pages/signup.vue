@@ -18,7 +18,7 @@ async function signIn() {
     const user = await signInWithEmailAndPassword($fireAuth, state.email, state.password);
     console.log(user)
     if (user.user != null) {
-      await useRouter().push("/editor")
+      await useRouter().push("/editor/content")
     }
   } catch (e) {
     console.log(e);

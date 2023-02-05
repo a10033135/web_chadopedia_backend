@@ -143,10 +143,12 @@ function delete_sub_category(item: SubCategory) {
 
         </form>
         <div class="modal-action">
-          <label for="my-modal" class="btn btn-success w-full" @click="edit_sub_category">修改</label>
+          <label for="my-modal" class="btn btn-success w-full"
+                 @click="edit_sub_category">修改</label>
         </div>
         <div class="modal-action">
-          <label for="my-modal" class="btn btn-outline btn-error my-6 w-full">Delete</label>
+          <label for="my-modal" class="btn btn-outline btn-error my-6 w-full"
+                 @click="delete_sub_category(state.edit_sub_category)">Delete</label>
         </div>
         <div class="modal-action">
           <label for="my-modal" class="btn w-full">關閉</label>
