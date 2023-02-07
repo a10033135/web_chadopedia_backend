@@ -37,17 +37,36 @@ const state = reactive({
 async function submit() {
   console.log('create_content')
 
-  await addDoc(collection($firestore, 'ChadoContent'), {
-    'title': state.title,
-    'desc': state.desc,
-    'image_url': state.image_url,
-    'enable': state.enable,
-    'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
-    'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
-    'create_time': Timestamp.now(),
-    'update_time': Timestamp.now()
-  })
-  await router.push('/editor/content')
+  const body = JSON.stringify({
+    name: 'fileName.value',
+    path: 'selected.value',
+    file: state.cropped_image
+  });
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const {data} = await useFetch("/api/cloudinary", {
+    method: "POST",
+    headers: config.headers,
+    body,
+  });
+
+  console.log(data)
+
+  // await addDoc(collection($firestore, 'ChadoContent'), {
+  //   'title': state.title,
+  //   'desc': state.desc,
+  //   'image_url': state.image_url,
+  //   'enable': state.enable,
+  //   'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
+  //   'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
+  //   'create_time': Timestamp.now(),
+  //   'update_time': Timestamp.now()
+  // })
+  // await router.push('/editor/content')
 }
 
 function cancel() {

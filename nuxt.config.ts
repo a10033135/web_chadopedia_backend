@@ -12,13 +12,6 @@ export default defineNuxtConfig({
     },
     modules: ['@pinia/nuxt'],
     ssr: false,
-    build: {
-        transpile: ['cloudinary']
-    },
-    alias: {
-        'cloudinary': 'cloudinary/cloudinary.js?v=ae8df26e'
-    }
-
 
 })
 

@@ -4,6 +4,7 @@ import {authStore} from "~/stores/auth";
 const state = authStore()
 const router = useRouter()
 
+
 if (state.isSignUp) {
   router.push('/editor/content')
 } else {
