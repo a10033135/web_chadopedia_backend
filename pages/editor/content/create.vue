@@ -8,12 +8,15 @@ import {useNuxtApp, useRouter} from "#app";
 import {addDoc, arrayUnion, collection, Timestamp, updateDoc} from "@firebase/firestore";
 import {Coordinates, Cropper} from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
+import {cloudinaryStore} from "~/stores/cloudinary";
 
 const {$firestore} = useNuxtApp()
 
 const fire_store = firestore()
 
 const router = useRouter()
+
+const cloudinary_store = cloudinaryStore()
 
 const crop_config = {
   quality: 1,
@@ -36,48 +39,51 @@ const state = reactive({
   selected_sub_categories: [] as SubCategory[],
   has_image: false,
   show_image_upload: false,
-  cropped_image: '' as string | ArrayBuffer | null | undefined
+  cropped_image: '' as string | ArrayBuffer | null | undefined,
+  upload_image: '' as string | ArrayBuffer | null | undefined
 })
 
 async function submit() {
   state.is_submit_loading = true
 
   const is_need_upload = state.cropped_image?.toString()?.length != 0
-  console.log('create_content', state.has_image)
+  console.log('has_image', state.has_image)
+  console.log('is_need_upload', is_need_upload)
 
-  // const doc = await addDoc(collection($firestore, 'ChadoContent'), {
-  //   'title': state.title,
-  //   'desc': state.desc,
-  //   'has_image': state.has_image,
-  //   'enable': state.enable,
-  //   'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
-  //   'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
-  //   'create_time': Timestamp.now(),
-  //   'update_time': Timestamp.now()
-  // })
-  // if (is_need_upload) {
-  //   const body = JSON.stringify({
-  //     name: doc.id,
-  //     path: 'chado_content',
-  //     file: state.cropped_image
-  //   });
-  //
-  //   const config = {
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   };
-  //
-  //   const {data} = await useFetch("/api/cloudinary/add", {
-  //     method: "POST",
-  //     headers: config.headers,
-  //     body,
-  //   });
-  // }
-  //
-  // state.is_submit_loading = false
-  //
-  // await router.push('/editor/content')
+  const doc = await addDoc(collection($firestore, 'ChadoContent'), {
+    'title': state.title,
+    'desc': state.desc,
+    'has_image': state.has_image,
+    'enable': state.enable,
+    'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
+    'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
+    'create_time': Timestamp.now(),
+    'update_time': Timestamp.now()
+  })
+  if (is_need_upload) {
+    const body = JSON.stringify({
+      name: doc.id,
+      path: 'chado_content',
+      file: state.cropped_image
+    });
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const {data} = await useFetch("/api/cloudinary/add", {
+      method: "POST",
+      headers: config.headers,
+      body,
+    });
+
+  }
+
+  state.is_submit_loading = false
+
+  await router.push('/editor/content')
 }
 
 function cancel() {
@@ -110,10 +116,6 @@ function get_main_category_by_sub(main_cate_id: string): string {
   return state.main_categories.find((value) => value.id == main_cate_id)?.title ?? ''
 }
 
-function crop_image(image: string | ArrayBuffer | null | undefined) {
-  state.cropped_image = image
-}
-
 </script>
 
 <template>
@@ -134,7 +136,9 @@ function crop_image(image: string | ArrayBuffer | null | undefined) {
 
       <div class="mb-6">
 
-        <cloudinary-upload @crop_image="crop_image" :has_image="state.has_image"></cloudinary-upload>
+        <cloudinary-upload v-model:has_image="state.has_image"
+                           v-model:crop_image="state.cropped_image"
+                           v-model:upload_image="state.upload_image"/>
 
       </div>
 

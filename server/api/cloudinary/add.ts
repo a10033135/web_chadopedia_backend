@@ -15,13 +15,23 @@ export default defineEventHandler(async (event) => {
     Cloudinary.config(cloudinaryConfig)
 
     try {
-        const result = await Cloudinary.uploader.upload(file, {public_id: name, folder: path})
+        const result = await Cloudinary.uploader.upload(file, {
+            public_id: name,
+            folder: path,
+            invalidate: true,
+            overwrite: true
+        })
         console.log(result)
+        return {
+            statusCode: 200,
+            versionCode: result.version
+        }
     } catch (e) {
         console.log(e)
+        return {
+            statusCode: 400,
+        }
     }
 
-    return {
-        statusCode: 200,
-    }
+
 })
