@@ -1,11 +1,9 @@
 import {v2 as Cloudinary} from 'cloudinary';
 import {parse} from 'path'
 
-export default defineEventHandler(async (nuxtApp) => {
+export default defineEventHandler(async (event) => {
 
-    const {name, path, file} = await readBody(nuxtApp)
-
-    const filename = parse(name).name
+    const {name, path, file} = await readBody(event)
 
     const cloudinaryConfig = {
         cloud_name: "di0d7y9qa",
@@ -17,9 +15,8 @@ export default defineEventHandler(async (nuxtApp) => {
     Cloudinary.config(cloudinaryConfig)
 
     try {
-        console.log('file')
-        const result = await Cloudinary.uploader.upload(file, {public_id: "olympic_flag___"})
-        console.log(result.public_id)
+        const result = await Cloudinary.uploader.upload(file, {public_id: name, folder: path})
+        console.log(result)
     } catch (e) {
         console.log(e)
     }

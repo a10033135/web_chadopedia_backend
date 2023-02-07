@@ -5,7 +5,9 @@ export const authStore = defineStore('auth', {
     state: () => {
         return {
             isSignUp: false,
-            user: {} as User | null
+            user: {
+
+            } as User | null
         }
     },
     getters: {

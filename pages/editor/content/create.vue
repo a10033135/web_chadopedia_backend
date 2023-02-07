@@ -15,57 +15,68 @@ const fire_store = firestore()
 
 const router = useRouter()
 
+const crop_config = {
+  quality: 1,
+  image_type: 'image/jpeg'
+}
+
 watch(fire_store, (store) => {
   state.main_categories = store.main_categories
   state.sub_categories = store.sub_categories
 })
 
 const state = reactive({
+  is_submit_loading: false,
   title: '',
   desc: '',
-  image_url: '',
   enable: false,
   main_categories: fire_store.main_categories,
   sub_categories: fire_store.sub_categories,
   selected_main_categories: [] as MainCategory[],
   selected_sub_categories: [] as SubCategory[],
+  has_image: false,
   show_image_upload: false,
-  image_src: '' as string | ArrayBuffer | null | undefined,
   cropped_image: '' as string | ArrayBuffer | null | undefined
 })
 
 async function submit() {
-  console.log('create_content')
+  state.is_submit_loading = true
 
-  const body = JSON.stringify({
-    name: 'fileName.value',
-    path: 'selected.value',
-    file: state.cropped_image
-  });
-  const config = {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
+  const is_need_upload = state.cropped_image?.toString()?.length != 0
+  console.log('create_content', state.has_image)
 
-  const {data} = await useFetch("/api/cloudinary", {
-    method: "POST",
-    headers: config.headers,
-    body,
-  });
-
-  console.log(data)
-
-  // await addDoc(collection($firestore, 'ChadoContent'), {
+  // const doc = await addDoc(collection($firestore, 'ChadoContent'), {
   //   'title': state.title,
   //   'desc': state.desc,
-  //   'image_url': state.image_url,
+  //   'has_image': state.has_image,
   //   'enable': state.enable,
   //   'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
   //   'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
   //   'create_time': Timestamp.now(),
   //   'update_time': Timestamp.now()
   // })
+  // if (is_need_upload) {
+  //   const body = JSON.stringify({
+  //     name: doc.id,
+  //     path: 'chado_content',
+  //     file: state.cropped_image
+  //   });
+  //
+  //   const config = {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   };
+  //
+  //   const {data} = await useFetch("/api/cloudinary/add", {
+  //     method: "POST",
+  //     headers: config.headers,
+  //     body,
+  //   });
+  // }
+  //
+  // state.is_submit_loading = false
+  //
   // await router.push('/editor/content')
 }
 
@@ -99,27 +110,9 @@ function get_main_category_by_sub(main_cate_id: string): string {
   return state.main_categories.find((value) => value.id == main_cate_id)?.title ?? ''
 }
 
-function fileSelected(file: File) {
-  const reader = new FileReader()
-  reader.addEventListener('load', (image) => {
-    console.log(image.target?.result)
-    state.image_url = image.target?.result as string
-  })
-  reader.readAsDataURL(file)
-
+function crop_image(image: string | ArrayBuffer | null | undefined) {
+  state.cropped_image = image
 }
-
-
-function crop_image(result: { image: string, visibleArea: string, coordinates: Coordinates; canvas: HTMLCanvasElement }) {
-  state.cropped_image = result.canvas.toDataURL()
-}
-
-function cancel_crop_image(files: HTMLInputElement) {
-  state.cropped_image = ''
-  state.image_url = ''
-  files.value = ''
-}
-
 
 </script>
 
@@ -141,20 +134,8 @@ function cancel_crop_image(files: HTMLInputElement) {
 
       <div class="mb-6">
 
-        <input type="file" ref="myFiles" accept="image/jpeg, image/png"
-               @change="fileSelected($refs.myFiles.files.item(0))">
+        <cloudinary-upload @crop_image="crop_image" :has_image="state.has_image"></cloudinary-upload>
 
-        <label v-if="state.cropped_image" class="btn btn-accent btn-sm"
-               @click="cancel_crop_image($refs.myFiles)">取消</label>
-
-        <cropper class="cropper"
-                 :src="state.image_url"
-                 :stencil-props="{aspectRatio: 1}"
-                 @change="crop_image"/>
-
-        <label v-if="state.cropped_image" class="my-2">編輯結果</label>
-
-        <img v-if="state.cropped_image" class="bg-black" :src="state.cropped_image" width="200" height="200"/>
       </div>
 
       <div class="p-4 w-full  bg-base-100">
@@ -203,7 +184,9 @@ function cancel_crop_image(files: HTMLInputElement) {
                type="checkbox" v-model="state.enable">
       </div>
 
-      <button class="btn btn-success w-full" @click="state.submit">Submit</button>
+      <button class="btn btn-success w-full"
+              :class="{'loading':state.is_submit_loading }" @click="state.submit">Submit
+      </button>
 
     </form>
 
@@ -214,11 +197,12 @@ function cancel_crop_image(files: HTMLInputElement) {
 </template>
 
 <style scoped>
+
 .cropper {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  height: 200px;
-  width: 200px;
+  margin-top: theme('space.2');
+  margin-bottom: theme('space.2');
+  width: theme('width.1/5');
+  aspect-ratio: theme('aspectRatio.square');
   background: #DDD;
 }
 </style>

@@ -6,9 +6,13 @@ import {SubCategory} from "~/model/SubCategory";
 import {firestore} from "~/stores/firestore";
 import {useNuxtApp} from "#app";
 import {Timestamp, arrayUnion, deleteDoc, doc, updateDoc} from "@firebase/firestore";
+import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
+import {AdvancedImage} from "@cloudinary/vue";
 
 const {$firestore} = useNuxtApp()
 const fire_store = firestore()
+
+const {$cld} = useNuxtApp()
 
 watch(fire_store, (store) => {
   state.main_categories = store.main_categories
@@ -20,11 +24,15 @@ const state = reactive({
   chado_contents: fire_store.chado_contents,
   main_categories: fire_store.main_categories,
   sub_categories: fire_store.sub_categories,
-  edit_chado_content: ChadoContent.newInstance()
+  edit_chado_content: ChadoContent.newInstance(),
+  edit_img: null as CloudinaryImage | null,
+  edit_upload_img: null as string | ArrayBuffer | null | undefined
 })
 
 function click_edit_item(item: ChadoContent) {
   state.edit_chado_content = item
+  state.edit_img = $cld.image('chado_content/' + item.id)
+  state.edit_upload_img = null
 }
 
 async function click_remove_item(item: ChadoContent) {
@@ -34,15 +42,38 @@ async function click_remove_item(item: ChadoContent) {
 async function click_edit_submit() {
   console.log('click_edit_submit')
 
+
   await updateDoc(doc($firestore, 'ChadoContent', state.edit_chado_content.id), {
     'title': state.edit_chado_content.title,
     'desc': state.edit_chado_content.desc,
-    "image_url": state.edit_chado_content.image_url,
     'enable': state.edit_chado_content.enable,
+    'has_image': state.edit_chado_content.has_image,
     'main_categories': arrayUnion(...state.edit_chado_content.main_categories),
     'sub_categories': arrayUnion(...state.edit_chado_content.sub_categories),
     'update_time': Timestamp.now()
   })
+
+  const is_need_upload = state.edit_upload_img?.toString().length != 0
+
+  if (is_need_upload) {
+    const body = JSON.stringify({
+      name: state.edit_chado_content.id,
+      path: 'chado_content',
+      file: state.edit_upload_img
+    });
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const {data} = await useFetch("/api/cloudinary/add", {
+      method: "POST",
+      headers: config.headers,
+      body,
+    });
+  }
 }
 
 function get_selected_categories(main_id: string, sub_categories: SubCategory[]): SubCategory[] {
@@ -75,6 +106,10 @@ function get_main_title_by_sub(main_id: string): string {
 
 function get_sub_title(sub_id: string): string {
   return state.sub_categories.find(value => sub_id == value.id)?.title ?? ''
+}
+
+function crop_image(img: string | ArrayBuffer | null | undefined) {
+  state.edit_upload_img = img
 }
 
 </script>
@@ -139,7 +174,7 @@ function get_sub_title(sub_id: string): string {
             <div class="mb-6">
               <label for="image_url" class="block mb-2 text-white">主分類圖片</label>
               <input class="input text-white w-full"
-                     type="url" id="image_url" v-model="state.edit_chado_content.image_url">
+                     type="url" id="image_url" v-model="state.edit_chado_content.has_image">
             </div>
 
             <div class="p-4 w-full  bg-base-100">
@@ -184,11 +219,19 @@ function get_sub_title(sub_id: string): string {
 
             </div>
 
+            <!-- img -->
+            <div>
+              <AdvancedImage v-if="state.edit_chado_content.has_image"
+                             class="cropper" :cld-img="state.edit_img"/>
+              <cloudinary-upload @crop_image="crop_image" :has_image="state.edit_chado_content.has_image"/>
 
-            <div class="mb-6">
-              <label for="enable" class="block mb-2 text-white">啟用</label>
+            </div>
+
+            <div class="flex mb-6">
+
               <input class="checkbox"
                      type="checkbox" v-model="state.edit_chado_content.enable">
+              <label for="enable" class="block mb-2 text-white">啟用</label>
             </div>
 
           </form>
@@ -207,3 +250,14 @@ function get_sub_title(sub_id: string): string {
     </div>
   </div>
 </template>
+
+<style scoped>
+
+.cropper {
+  margin-top: theme('space.2');
+  margin-bottom: theme('space.2');
+  width: theme('width.1/5');
+  aspect-ratio: theme('aspectRatio.square');
+  background: #DDD;
+}
+</style>

@@ -10,7 +10,7 @@ export class ChadoContent {
 
     enable: boolean = false;
 
-    image_url: string = '';
+    has_image: boolean = false;
 
     main_categories: string[] = [];
 
@@ -21,12 +21,12 @@ export class ChadoContent {
     update_time: number = 0;
 
 
-    constructor(id: string, title: string, desc: string, enable: boolean, image_url: string, main_categories: string[], sub_categories: string[], create_time: number, update_time: number) {
+    constructor(id: string, title: string, desc: string, enable: boolean, has_image: boolean, main_categories: string[], sub_categories: string[], create_time: number, update_time: number) {
         this.id = id;
         this.title = title;
         this.desc = desc;
         this.enable = enable;
-        this.image_url = image_url;
+        this.has_image = has_image;
         this.main_categories = main_categories;
         this.sub_categories = sub_categories;
         this.create_time = create_time;
@@ -34,7 +34,7 @@ export class ChadoContent {
     }
 
     static newInstance(): ChadoContent {
-        return new ChadoContent('', '', '', false, '', [], [], 0, 0)
+        return new ChadoContent('', '', '', false, false, [], [], 0, 0)
     }
 }
 
@@ -44,7 +44,7 @@ export function doc2ChadoContent(doc: QueryDocumentSnapshot): ChadoContent {
     const title = data['title'] ?? ''
     const desc = data['desc'] ?? ''
     const enable = data['enable'] ?? false
-    const image_url = data['image_url'] ?? ''
+    const image_url = data['has_image'] ?? false
     const main_categories = data['main_categories'] ?? ([] as string[])
     const sub_categories = data['sub_categories'] ?? ([] as string[])
     const create_time = (data['create_time'] as Timestamp).seconds ?? Timestamp.now().seconds
