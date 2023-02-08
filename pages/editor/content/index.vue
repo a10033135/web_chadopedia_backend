@@ -44,8 +44,8 @@ function click_edit_item(item: ChadoContent) {
   console.log('click_edit_itme')
   modal_state.is_open = true
   state.edit_chado_content = new ChadoContent(item.id, item.title, item.desc, item.enable, item.has_image, item.main_categories, item.sub_categories, item.create_time, item.update_time)
-  state.edit_upload_img = null
-  state.edit_crop_img = null
+  state.edit_upload_img = null // 被上傳的圖片
+  state.edit_crop_img = null // 被裁切的圖片
   state.edit_img = $cld.image('chado_content/' + item.id).setVersion(cloudinary_version.value ?? '')
 }
 
@@ -73,7 +73,7 @@ async function click_edit_submit() {
     'update_time': Timestamp.now()
   })
 
-  const is_need_upload = state.edit_upload_img?.toString().length != 0
+  const is_need_upload = state.edit_crop_img?.toString().length != 0
 
   if (is_need_upload) {
     const body = JSON.stringify({
@@ -234,7 +234,7 @@ function get_sub_title(sub_id: string): string {
 
             <!-- img -->
             <div>
-              <AdvancedImage class="cropper" :cld-img="state.edit_img"/>
+              <AdvancedImage v-if="state.edit_img!=null" class="cropper" :cld-img="state.edit_img"/>
               <cloudinary-upload v-model:crop_image="state.edit_crop_img"
                                  v-model:has_image="state.edit_chado_content.has_image"
                                  v-model:upload_image="state.edit_upload_img"/>
@@ -251,15 +251,15 @@ function get_sub_title(sub_id: string): string {
           </form>
         </div>
         <div class="my-2">
-          <label for="modal" class="btn btn-success w-full" :class="{'loading':modal_state.submit_loading}"
+          <label class="btn btn-success w-full" :class="{'loading':modal_state.submit_loading}"
                  @click="click_edit_submit">Submit</label>
         </div>
         <div class="my-2">
-          <label for="modal" class="btn btn-outline btn-error w-full"
+          <label class="btn btn-outline btn-error w-full"
                  @click="click_remove_item(state.edit_chado_content)">Delete</label>
         </div>
         <div class="my-2">
-          <label for="modal" class="btn w-full">關閉</label>
+          <label class="btn w-full" @click="modal_state.is_open = false">關閉</label>
         </div>
       </div>
     </div>
