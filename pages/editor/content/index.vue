@@ -7,13 +7,10 @@ import {firestore} from "~/stores/firestore";
 import {useNuxtApp} from "#app";
 import {Timestamp, arrayUnion, deleteDoc, doc, updateDoc} from "@firebase/firestore";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
-import {AdvancedImage} from "@cloudinary/vue";
-import {cloudinaryStore} from "~/stores/cloudinary";
+import {chado_content_path, genChadoContentPath} from "~/utils/cloudinaryUtils";
 
 const {$firestore} = useNuxtApp()
 const fire_store = firestore()
-
-const cloudinary_store = cloudinaryStore()
 
 const cloudinary_version = useCookie('cloudinary_version')
 
@@ -35,7 +32,7 @@ const state = reactive({
   main_categories: fire_store.main_categories,
   sub_categories: fire_store.sub_categories,
   edit_chado_content: ChadoContent.newInstance(),
-  edit_img: null as CloudinaryImage | null,
+  last_image: null as CloudinaryImage | null,
   edit_upload_img: null as string | ArrayBuffer | null | undefined,
   edit_crop_img: null as string | ArrayBuffer | null | undefined
 })
@@ -46,7 +43,7 @@ function click_edit_item(item: ChadoContent) {
   state.edit_chado_content = new ChadoContent(item.id, item.title, item.desc, item.enable, item.has_image, item.main_categories, item.sub_categories, item.create_time, item.update_time)
   state.edit_upload_img = null // 被上傳的圖片
   state.edit_crop_img = null // 被裁切的圖片
-  state.edit_img = $cld.image('chado_content/' + item.id).setVersion(cloudinary_version.value ?? '')
+  state.edit_img = $cld.image(genChadoContentPath(item.id))
 }
 
 function click_close_modal() {
@@ -78,26 +75,20 @@ async function click_edit_submit() {
   if (is_need_upload) {
     const body = JSON.stringify({
       name: state.edit_chado_content.id,
-      path: 'chado_content',
+      path: chado_content_path,
       file: state.edit_crop_img
     });
 
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
     const {data} = await useFetch("/api/cloudinary/add", {
       method: "POST",
-      headers: config.headers,
+      headers: {"Content-Type": "application/json",},
       body,
     });
 
     cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
-    modal_state.is_open = false
-    modal_state.submit_loading = false
   }
+  modal_state.is_open = false
+  modal_state.submit_loading = false
 }
 
 function get_selected_categories(main_id: string, sub_categories: SubCategory[]): SubCategory[] {
@@ -234,10 +225,11 @@ function get_sub_title(sub_id: string): string {
 
             <!-- img -->
             <div>
-              <AdvancedImage v-if="state.edit_img!=null" class="cropper" :cld-img="state.edit_img"/>
-              <cloudinary-upload v-model:crop_image="state.edit_crop_img"
-                                 v-model:has_image="state.edit_chado_content.has_image"
-                                 v-model:upload_image="state.edit_upload_img"/>
+              <cloudinary-upload
+                  v-model:last_image="state.edit_img"
+                  v-model:crop_image="state.edit_crop_img"
+                  v-model:has_image="state.edit_chado_content.has_image"
+                  v-model:upload_image="state.edit_upload_img"/>
 
             </div>
 

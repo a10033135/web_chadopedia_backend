@@ -4,6 +4,7 @@ import {useNuxtApp, useRouter} from "#app";
 import {firestore} from "~/stores/firestore";
 import {MainCategory} from "~/model/MainCategory";
 import {addDoc, collection, doc, Timestamp, updateDoc} from "@firebase/firestore";
+import {chado_content_path, main_category_path} from "~/utils/cloudinaryUtils";
 
 const {$firestore} = useNuxtApp()
 const router = useRouter()
@@ -13,13 +14,19 @@ const fire_store = firestore()
 const state = reactive({
   title: '',
   desc: '',
-  image_url: '',
   sort: 1,
-  enable: false
+  enable: false,
+  is_submit_loading: false
+})
+
+const crop_image_state = reactive({
+  has_image: false,
+  cropped_image: '' as string | ArrayBuffer | null | undefined,
+  upload_image: '' as string | ArrayBuffer | null | undefined
 })
 
 async function submit() {
-
+  state.is_submit_loading = true
 
   fire_store.main_categories
       .filter(value => state.sort == value.sort)
@@ -29,15 +36,43 @@ async function submit() {
         })
       })
 
-  await addDoc(collection($firestore, 'MainCate'), {
+  const doc_uploaded = await addDoc(collection($firestore, 'MainCate'), {
     'title': state.title,
     'desc': state.desc,
-    'image_url': state.image_url,
+    'has_image': crop_image_state.has_image,
     'enable': state.enable,
     'sort': state.sort,
     'create_time': Timestamp.now(),
     'update_time': Timestamp.now()
   })
+
+
+  const is_need_upload = crop_image_state.cropped_image?.toString()?.length != 0
+  console.log('has_image', crop_image_state.has_image)
+  console.log('is_need_upload', is_need_upload)
+
+  if (is_need_upload) {
+    const body = JSON.stringify({
+      name: doc_uploaded.id,
+      path: main_category_path,
+      file: crop_image_state.cropped_image
+    });
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const {data} = await useFetch("/api/cloudinary/add", {
+      method: "POST",
+      headers: config.headers,
+      body,
+    });
+
+  }
+
+  state.is_submit_loading = false
   await router.push('/editor/channel')
 }
 
@@ -63,10 +98,11 @@ function cancel() {
       </div>
 
       <div class="mb-6">
-        <label for="url" class="block mb-2 text-white">主分類圖片</label>
-        <input type="url" id="url" v-model="state.image_url"
-               class="input text-white w-full "
-               placeholder="google driver">
+        <cloudinary-upload
+            v-model:has_image="crop_image_state.has_image"
+            v-model:crop_image="crop_image_state.cropped_image"
+            v-model:upload_image="crop_image_state.upload_image"
+        />
       </div>
 
       <div class="mb-6">
@@ -83,7 +119,9 @@ function cancel() {
         >
       </div>
 
-      <button class="btn btn-success w-full">Submit</button>
+      <button class="btn btn-success w-full" :class="{'loading':state.is_submit_loading}">
+        Submit
+      </button>
 
     </form>
 

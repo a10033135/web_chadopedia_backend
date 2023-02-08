@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import {Coordinates, Cropper} from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
+import {AdvancedImage} from "@cloudinary/vue";
 
 const emit = defineEmits(['update:crop_image', 'update:has_image', 'update:upload_image'])
 
-const param = defineProps(['crop_image', 'has_image', 'upload_image'])
+const param = defineProps(['last_image', 'crop_image', 'has_image', 'upload_image'])
 
 const crop_config = {
   quality: 1,
@@ -34,6 +35,8 @@ function reset_crop_image(files: HTMLInputElement) {
 
 <template>
   <div class="mb-6">
+
+    <AdvancedImage v-if="param.last_image!=null" class="cropper" v-model:cld-img="param.last_image"/>
 
     <div class="flex my-3">
       <input type="checkbox" class="checkbox" :value="param.has_image"

@@ -6,9 +6,8 @@ import {SubCategory} from "~/model/SubCategory";
 import {firestore} from "~/stores/firestore";
 import {useNuxtApp, useRouter} from "#app";
 import {addDoc, arrayUnion, collection, Timestamp, updateDoc} from "@firebase/firestore";
-import {Coordinates, Cropper} from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import {cloudinaryStore} from "~/stores/cloudinary";
+import {chado_content_path} from "~/utils/cloudinaryUtils";
 
 const {$firestore} = useNuxtApp()
 
@@ -16,12 +15,6 @@ const fire_store = firestore()
 
 const router = useRouter()
 
-const cloudinary_store = cloudinaryStore()
-
-const crop_config = {
-  quality: 1,
-  image_type: 'image/jpeg'
-}
 
 watch(fire_store, (store) => {
   state.main_categories = store.main_categories
@@ -38,17 +31,12 @@ const state = reactive({
   selected_main_categories: [] as MainCategory[],
   selected_sub_categories: [] as SubCategory[],
   has_image: false,
-  show_image_upload: false,
   cropped_image: '' as string | ArrayBuffer | null | undefined,
   upload_image: '' as string | ArrayBuffer | null | undefined
 })
 
 async function submit() {
   state.is_submit_loading = true
-
-  const is_need_upload = state.cropped_image?.toString()?.length != 0
-  console.log('has_image', state.has_image)
-  console.log('is_need_upload', is_need_upload)
 
   const doc = await addDoc(collection($firestore, 'ChadoContent'), {
     'title': state.title,
@@ -60,22 +48,22 @@ async function submit() {
     'create_time': Timestamp.now(),
     'update_time': Timestamp.now()
   })
+
+
+  const is_need_upload = state.cropped_image?.toString()?.length != 0
+  console.log('has_image', state.has_image)
+  console.log('is_need_upload', is_need_upload)
+
   if (is_need_upload) {
     const body = JSON.stringify({
       name: doc.id,
-      path: 'chado_content',
+      path: chado_content_path,
       file: state.cropped_image
     });
 
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
     const {data} = await useFetch("/api/cloudinary/add", {
       method: "POST",
-      headers: config.headers,
+      headers: {"Content-Type": "application/json"},
       body,
     });
 
