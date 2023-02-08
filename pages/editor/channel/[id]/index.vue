@@ -7,7 +7,14 @@ import {useNuxtApp, useRouter} from "#app";
 import {collection, deleteDoc, doc, Timestamp, updateDoc} from "@firebase/firestore";
 import {id} from "postcss-selector-parser";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
-import {genMainCategoryPath, genSubCategoryPath, main_category_path, sub_category_path} from "~/utils/cloudinaryUtils";
+import {
+  genChadoContentPath,
+  genMainCategoryPath,
+  genSubCategoryPath,
+  main_category_path,
+  sub_category_path
+} from "~/utils/cloudinaryUtils";
+import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
 
 const {$firestore} = useNuxtApp()
 
@@ -52,7 +59,7 @@ function click_edit_sub_category(item: SubCategory) {
   state.edit_sub_origin_sort = item.sort
   crop_image_state.cropped_image = null
   crop_image_state.upload_image = null
-  crop_image_state.last_image = $cld.image(genSubCategoryPath(item.id)).setVersion(cloudinary_version.value ?? '')
+  crop_image_state.last_image = $cld.image(genSubCategoryPath(item.id)).setVersion(cloudinary_version.value ?? '').delivery(defaultImage('placeholder.png'))
 }
 
 async function edit_sub_category() {

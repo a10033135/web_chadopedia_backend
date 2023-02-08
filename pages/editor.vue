@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useNuxtApp} from "#app";
+import {useNuxtApp, useRoute} from "#app";
 import {firestore} from "~/stores/firestore";
 
 const {$firestore} = useNuxtApp()
@@ -9,13 +9,56 @@ fire_store.update_main_categories($firestore)
 fire_store.update_sub_categories($firestore)
 fire_store.update_chado_contents($firestore)
 
+const route = useRoute()
+
 
 const state = reactive({
+  page_title: '',
   selected_categories: [] = [
     {main_id: '分類', link: '/editor/channel'},
     {main_id: '內容', link: '/editor/content'}
   ]
 })
+
+watch(route, (route) => {
+  console.log(route.name)
+  let routeArray = (route.name as string).split('-')
+  state.page_title = getPageTitle(routeArray[1], routeArray[2], routeArray[3])
+})
+
+let routeArray = (route.name as string).split('-')
+state.page_title = getPageTitle(routeArray[1], routeArray[2], routeArray[3])
+
+
+function getPageTitle(route1: string, route2: string, route3: string): string {
+  let result = ''
+  console.log(route1 + route2 + route3)
+  switch (route1) {
+    case 'content':
+      result += '內容'
+      break
+    case 'channel':
+      result += '主頻道'
+      break
+  }
+  switch (route2) {
+    case 'create':
+      result += '/新增'
+      break
+    case 'id':
+      result += '/子項目'
+      break
+  }
+  switch (route3) {
+    case 'create':
+      result += '/新增'
+      break
+    case 'id':
+      result += '/子項目'
+      break
+  }
+  return result
+}
 
 </script>
 
@@ -39,7 +82,7 @@ const state = reactive({
           </ul>
         </div>
       </div>
-      <div class="flex-1">
+      <div class="flex-2 text-center">{{ state.page_title }}
       </div>
     </div>
     <main class="main flex flex-col flex-grow  transition-all duration-150 ease-in">

@@ -12,6 +12,7 @@ import {
 } from "~/utils/cloudinaryUtils";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
 import {AdvancedImage} from "@cloudinary/vue";
+import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
 
 const {$firestore} = useNuxtApp()
 const fire_store = firestore()
@@ -50,7 +51,7 @@ function click_edit_main_cate(item: MainCategory) {
   state.edit_sub_origin_sort = item.sort
   crop_image_state.cropped_image = null
   crop_image_state.upload_image = null
-  crop_image_state.last_image = $cld.image(genMainCategoryPath(item.id)).setVersion(cloudinary_version.value ?? '')
+  crop_image_state.last_image = $cld.image(genMainCategoryPath(item.id)).setVersion(cloudinary_version.value ?? '').delivery(defaultImage('placeholder.png'))
 }
 
 async function remove_main_cate(main_category: MainCategory) {
