@@ -190,13 +190,13 @@ function get_sub_title(sub_id: string): string {
           <form>
             <div class="mb-6">
               <label for="title" class="block mb-2 text-white">標題</label>
-              <input class="input text-white w-full" placeholder="請填寫標題"
+              <input class="input input-success text-white w-full" placeholder="請填寫標題"
                      type="text" id="title" v-model="state.edit_chado_content.title">
             </div>
 
             <div class="mb-6">
               <label for="desc" class="block mb-2 text-white">描述</label>
-              <input class="input text-white w-full"
+              <input class="input input-success text-white w-full"
                      type="text" placeholder="簡單描述" v-model="state.edit_chado_content.desc">
             </div>
 
@@ -254,7 +254,7 @@ function get_sub_title(sub_id: string): string {
 
             <div class="flex mb-6">
 
-              <input class="checkbox"
+              <input class="checkbox checkbox-success"
                      type="checkbox" v-model="state.edit_chado_content.enable">
               <label for="enable" class="block mb-2 text-white">啟用</label>
             </div>

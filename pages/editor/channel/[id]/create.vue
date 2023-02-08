@@ -126,13 +126,13 @@ function cancel() {
       <div class="mb-6">
         <label for="sort">排序順位</label>
         <input type="number" id="sort" v-model="state.sort"
-               class="input text-white w-full" min="1" max="100"
+               class="input input-success text-white w-full" min="1" max="100"
                placeholder="number">
       </div>
 
       <div class="mb-6">
         <label for="url" class="block mb-2 text-white">啟用</label>
-        <input type="checkbox" v-bind:checked="state.enable" class="checkbox"
+        <input type="checkbox" v-bind:checked="state.enable" class="checkbox checkbox-success"
                placeholder="true"
         >
       </div>

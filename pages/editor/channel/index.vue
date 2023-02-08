@@ -174,13 +174,18 @@ async function submit_edit_category() {
           <div class="mb-6">
             <label for="email" class="block mb-2 text-white">主分類名稱</label>
             <input type="text" id="email" v-model="state.edit_category.title"
-                   class="input text-white w-full " placeholder="ex: 茶茗" required>
+                   class="input input-success text-white w-full " placeholder="ex: 茶茗" required>
           </div>
 
           <div class="mb-6">
             <label for="email" class="block mb-2 text-white">描述</label>
             <input type="text" placeholder="簡單描述" v-model="state.edit_category.desc"
-                   class="input text-white w-full"/>
+                   class="input input-success text-white w-full"/>
+          </div>
+
+          <div class="mb-6">
+            <label for="sort" class="block mb-2 text-white">排序</label>
+            <input type="number" class="input input-success" min="1" max="200" placeholder="0" v-model="state.edit_category.sort">
           </div>
 
           <!-- img -->
@@ -195,7 +200,7 @@ async function submit_edit_category() {
 
           <div class="mb-6">
             <label for="url" class="block mb-2 text-white">啟用</label>
-            <input type="checkbox" class="checkbox" v-model="state.edit_category.enable"
+            <input type="checkbox" class="checkbox checkbox-success" v-model="state.edit_category.enable"
                    placeholder="true">
           </div>
 

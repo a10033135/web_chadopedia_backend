@@ -11,33 +11,22 @@ const state = reactive({
 })
 
 async function signIn() {
-
-  console.log('email', state.email)
-  console.log('password', state.password)
   try {
     const user = await signInWithEmailAndPassword($fireAuth, state.email, state.password);
-    console.log(user)
     if (user.user != null) {
       await useRouter().push("/editor/content")
     }
   } catch (e) {
     console.log(e);
   }
-
 }
 
 async function createUser() {
-  console.log('email', state.email)
-  console.log('password', state.password)
-
   try {
     const user = await createUserWithEmailAndPassword($fireAuth, state.email, state.password)
-    console.log(user)
   } catch (e) {
     console.log('createUser', e)
   }
-
-
 }
 
 </script>
@@ -77,11 +66,6 @@ async function createUser() {
           <button type="submit" v-on:click="signIn"
                   class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             Sign in
-          </button>
-          <p>--</p>
-          <button type="submit" v-on:click="createUser"
-                  class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            Create Account
           </button>
         </div>
       </div>

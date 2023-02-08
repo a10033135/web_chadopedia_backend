@@ -45,13 +45,14 @@ function reset_crop_image(files: HTMLInputElement) {
     </AdvancedImage>
 
     <div class="flex my-3">
-      <input type="checkbox" class="checkbox"
+      <input type="checkbox" class="checkbox checkbox-success"
              :checked="param.has_image"
              @input="$emit('update:has_image',$event.target.checked)">
       <label class="mx-2">是否要顯示圖片</label>
     </div>
 
-    <input type="file" ref="myFiles" accept="image/jpeg, image/png"
+    <input type="file" class="file-input file-input-success file-input-bordered"
+           ref="myFiles" accept="image/jpeg, image/png"
            @change="fileSelected($refs.myFiles.files.item(0))">
 
     <label v-if="param.upload_image" class="btn btn-accent btn-sm"
@@ -73,11 +74,23 @@ function reset_crop_image(files: HTMLInputElement) {
 
 <style scoped>
 
-.cropper {
-  margin-top: theme('space.2');
-  margin-bottom: theme('space.2');
-  width: theme('width.1/5');
-  aspect-ratio: theme('aspectRatio.square');
-  background: #DDD;
+@screen sm {
+  .cropper {
+    margin-top: theme('space.2');
+    margin-bottom: theme('space.2');
+    width: theme('width.full');
+    aspect-ratio: theme('aspectRatio.square');
+    background: #DDD;
+  }
 }
+@screen md {
+  .cropper {
+    margin-top: theme('space.2');
+    margin-bottom: theme('space.2');
+    width: theme('width.1/5');
+    aspect-ratio: theme('aspectRatio.square');
+    background: #DDD;
+  }
+}
+
 </style>

@@ -116,13 +116,13 @@ function get_main_category_by_sub(main_cate_id: string): string {
 
       <div class="mb-6">
         <label for="title" class="block mb-2 text-white">標題</label>
-        <input class="input text-white w-full" placeholder="請填寫標題"
+        <input class="input input-success text-white w-full" placeholder="請填寫標題"
                type="text" id="title" v-model="state.title">
       </div>
 
       <div class="mb-6">
         <label for="desc" class="block mb-2 text-white">描述</label>
-        <input class="input text-white w-full"
+        <input class="input input-success text-white w-full"
                type="text" placeholder="簡單描述" v-model="state.desc">
       </div>
 
@@ -176,7 +176,7 @@ function get_main_category_by_sub(main_cate_id: string): string {
 
       <div class="mb-6">
         <label for="enable" class="block mb-2 text-white">啟用</label>
-        <input class="checkbox"
+        <input class="checkbox checkbox-success"
                type="checkbox" v-model="state.enable">
       </div>
 

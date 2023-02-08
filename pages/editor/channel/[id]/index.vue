@@ -164,19 +164,20 @@ function delete_sub_category(item: SubCategory) {
 
           <div class="mb-6">
             <label for="email" class="block mb-2 text-white">副分類名稱</label>
-            <input type="text" id="email" v-model="state.edit_sub_category.title" class="input text-white w-full"
+            <input type="text" id="email" v-model="state.edit_sub_category.title" class="input input-success text-white w-full"
                    placeholder="ex: 茶茗" required>
           </div>
 
           <div class="mb-6">
             <label for="email" class="block mb-2 text-white">描述</label>
-            <input type="text" placeholder="簡單描述" class="input text-white w-full"
+            <input type="text" placeholder="簡單描述" class="input input-success text-white w-full"
                    v-model="state.edit_sub_category.desc"/>
           </div>
 
           <div class="mb-6">
             <label for="sort" class="block mb-2 text-white">排序</label>
-            <input type="number" min="1" max="200" placeholder="0" v-model="state.edit_sub_category.sort">
+            <input type="number" class="select select-success" min="1" max="200" placeholder="0"
+                   v-model="state.edit_sub_category.sort">
           </div>
 
           <!-- img -->
@@ -190,25 +191,24 @@ function delete_sub_category(item: SubCategory) {
 
           <div class="mb-6">
             <label for="url" class="block mb-2 text-white">啟用</label>
-            <input type="checkbox" v-model="state.edit_sub_category.enable" class="checkbox"
-                   placeholder="true"
-            >
+            <input type="checkbox" v-model="state.edit_sub_category.enable" class="checkbox checkbox-success"
+                   placeholder="true">
           </div>
 
 
         </form>
         <div>
-          <label for="my-modal" class="btn btn-success w-full"
+          <label class="btn btn-success w-full"
                  :class="{'loading':modal_state.is_submit_loading}"
                  @click="edit_sub_category">修改</label>
         </div>
         <div>
-          <label for="my-modal" class="btn btn-outline btn-error my-6 w-full"
+          <label class="btn btn-outline btn-error my-6 w-full"
                  :class="{'loading':modal_state.is_delete_loading}"
                  @click="delete_sub_category(state.edit_sub_category)">Delete</label>
         </div>
         <div>
-          <label for="my-modal" class="btn w-full" @click="modal_state.is_open = false">關閉</label>
+          <label class="btn w-full" @click="modal_state.is_open = false">關閉</label>
         </div>
       </div>
     </div>
