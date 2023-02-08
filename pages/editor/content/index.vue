@@ -8,6 +8,7 @@ import {useNuxtApp} from "#app";
 import {Timestamp, arrayUnion, deleteDoc, doc, updateDoc} from "@firebase/firestore";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
 import {chado_content_path, genChadoContentPath} from "~/utils/cloudinaryUtils";
+import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
 
 const {$firestore} = useNuxtApp()
 const fire_store = firestore()
@@ -24,7 +25,8 @@ watch(fire_store, (store) => {
 
 const modal_state = reactive({
   is_open: false,
-  submit_loading: false
+  is_submit_loading: false,
+  is_delete_loading: false
 })
 
 const state = reactive({
@@ -32,6 +34,9 @@ const state = reactive({
   main_categories: fire_store.main_categories,
   sub_categories: fire_store.sub_categories,
   edit_chado_content: ChadoContent.newInstance(),
+})
+
+const crop_image_state = reactive({
   last_image: null as CloudinaryImage | null,
   edit_upload_img: null as string | ArrayBuffer | null | undefined,
   edit_crop_img: null as string | ArrayBuffer | null | undefined
@@ -41,24 +46,37 @@ function click_edit_item(item: ChadoContent) {
   console.log('click_edit_itme')
   modal_state.is_open = true
   state.edit_chado_content = new ChadoContent(item.id, item.title, item.desc, item.enable, item.has_image, item.main_categories, item.sub_categories, item.create_time, item.update_time)
-  state.edit_upload_img = null // 被上傳的圖片
-  state.edit_crop_img = null // 被裁切的圖片
-  state.edit_img = $cld.image(genChadoContentPath(item.id))
-}
-
-function click_close_modal() {
-  modal_state.is_open = false
+  crop_image_state.edit_upload_img = null // 被上傳的圖片
+  crop_image_state.edit_crop_img = null // 被裁切的圖片
+  crop_image_state.last_image = $cld.image(genChadoContentPath(item.id)).setVersion(cloudinary_version.value ?? '').delivery(defaultImage('placeholder.png'))
 }
 
 async function click_remove_item(item: ChadoContent) {
+  console.log('click_remove_item')
+  modal_state.is_delete_loading = true
   await deleteDoc(doc($firestore, 'ChadoContent', item.id))
+
+  const body = JSON.stringify({
+    name: item.id,
+    path: chado_content_path,
+  });
+
+  const {data} = await useFetch("/api/cloudinary/destroy", {
+    method: "POST",
+    headers: {"Content-Type": "application/json",},
+    body,
+  });
+
+  cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
+
+  modal_state.is_delete_loading = false
   modal_state.is_open = false
 }
 
 async function click_edit_submit() {
   console.log('click_edit_submit')
 
-  modal_state.submit_loading = true
+  modal_state.is_submit_loading = true
 
   await updateDoc(doc($firestore, 'ChadoContent', state.edit_chado_content.id), {
     'title': state.edit_chado_content.title,
@@ -70,13 +88,13 @@ async function click_edit_submit() {
     'update_time': Timestamp.now()
   })
 
-  const is_need_upload = state.edit_crop_img?.toString().length != 0
+  const is_need_upload = crop_image_state.edit_crop_img != null
 
   if (is_need_upload) {
     const body = JSON.stringify({
       name: state.edit_chado_content.id,
       path: chado_content_path,
-      file: state.edit_crop_img
+      file: crop_image_state.edit_crop_img
     });
 
     const {data} = await useFetch("/api/cloudinary/add", {
@@ -88,7 +106,7 @@ async function click_edit_submit() {
     cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
   }
   modal_state.is_open = false
-  modal_state.submit_loading = false
+  modal_state.is_submit_loading = false
 }
 
 function get_selected_categories(main_id: string, sub_categories: SubCategory[]): SubCategory[] {
@@ -157,6 +175,7 @@ function get_sub_title(sub_id: string): string {
                    @click="click_edit_item(item)">編輯</label>
 
             <label class="btn btn-xs btn-outline btn-error hover:btn-error"
+                   :class="{'loading':modal_state.is_delete_loading}"
                    @click="click_remove_item(item)">刪除</label>
           </td>
         </tr>
@@ -226,10 +245,10 @@ function get_sub_title(sub_id: string): string {
             <!-- img -->
             <div>
               <cloudinary-upload
-                  v-model:last_image="state.edit_img"
-                  v-model:crop_image="state.edit_crop_img"
+                  v-model:last_image="crop_image_state.last_image"
+                  v-model:crop_image="crop_image_state.edit_crop_img"
                   v-model:has_image="state.edit_chado_content.has_image"
-                  v-model:upload_image="state.edit_upload_img"/>
+                  v-model:upload_image="crop_image_state.edit_upload_img"/>
 
             </div>
 
@@ -243,11 +262,12 @@ function get_sub_title(sub_id: string): string {
           </form>
         </div>
         <div class="my-2">
-          <label class="btn btn-success w-full" :class="{'loading':modal_state.submit_loading}"
+          <label class="btn btn-success w-full" :class="{'loading':modal_state.is_submit_loading}"
                  @click="click_edit_submit">Submit</label>
         </div>
         <div class="my-2">
           <label class="btn btn-outline btn-error w-full"
+                 :class="{'loading':modal_state.is_delete_loading}"
                  @click="click_remove_item(state.edit_chado_content)">Delete</label>
         </div>
         <div class="my-2">

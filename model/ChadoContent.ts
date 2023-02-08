@@ -44,10 +44,10 @@ export function doc2ChadoContent(doc: QueryDocumentSnapshot): ChadoContent {
     const title = data['title'] ?? ''
     const desc = data['desc'] ?? ''
     const enable = data['enable'] ?? false
-    const image_url = data['has_image'] ?? false
+    const has_image = data['has_image'] ?? false
     const main_categories = data['main_categories'] ?? ([] as string[])
     const sub_categories = data['sub_categories'] ?? ([] as string[])
     const create_time = (data['create_time'] as Timestamp).seconds ?? Timestamp.now().seconds
     const update_time = (data['update_time'] as Timestamp).seconds ?? Timestamp.now().seconds
-    return new ChadoContent(id, title, desc, enable, image_url, main_categories, sub_categories, create_time, update_time)
+    return new ChadoContent(id, title, desc, enable, has_image, main_categories, sub_categories, create_time, update_time)
 }

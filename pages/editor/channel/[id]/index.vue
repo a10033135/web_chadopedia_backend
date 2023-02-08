@@ -6,6 +6,8 @@ import {firestore} from "~/stores/firestore";
 import {useNuxtApp, useRouter} from "#app";
 import {collection, deleteDoc, doc, Timestamp, updateDoc} from "@firebase/firestore";
 import {id} from "postcss-selector-parser";
+import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
+import {genMainCategoryPath, genSubCategoryPath, main_category_path, sub_category_path} from "~/utils/cloudinaryUtils";
 
 const {$firestore} = useNuxtApp()
 
@@ -13,6 +15,10 @@ const fire_store = firestore()
 
 const route = useRoute()
 const route_id = route.path.split('/')[3]
+
+const cloudinary_version = useCookie('cloudinary_version')
+
+const {$cld} = useNuxtApp()
 
 watch(fire_store, store => {
   state.sub_categories = store.sub_categories.filter(value => state.id == value.main_cate_id)
@@ -28,13 +34,29 @@ const state = reactive({
   edit_sub_origin_sort: 0
 })
 
+const modal_state = reactive({
+  is_open: false,
+  is_delete_loading: false,
+  is_submit_loading: false
+})
+
+const crop_image_state = reactive({
+  last_image: null as CloudinaryImage | null,
+  cropped_image: null as string | ArrayBuffer | null | undefined,
+  upload_image: null as string | ArrayBuffer | null | undefined
+})
+
 function click_edit_sub_category(item: SubCategory) {
-  state.edit_sub_category = item
+  modal_state.is_open = true
+  state.edit_sub_category = new SubCategory(item.id, item.main_cate_id, item.title, item.desc, item.enable, item.sort, item.has_image, item.create_time, item.update_time)
   state.edit_sub_origin_sort = item.sort
+  crop_image_state.cropped_image = null
+  crop_image_state.upload_image = null
+  crop_image_state.last_image = $cld.image(genSubCategoryPath(item.id)).setVersion(cloudinary_version.value ?? '')
 }
 
-function edit_sub_category() {
-
+async function edit_sub_category() {
+  modal_state.is_submit_loading = true
   state.sub_categories
       .filter(value => state.edit_sub_category.sort == value.sort)
       .forEach(value => {
@@ -43,14 +65,38 @@ function edit_sub_category() {
         })
       })
 
-
-  updateDoc(doc(collection($firestore, 'SubCate'), state.edit_sub_category.id), {
+  await updateDoc(doc(collection($firestore, 'SubCate'), state.edit_sub_category.id), {
     'title': state.edit_sub_category.title,
     'desc': state.edit_sub_category.desc,
+    'has_image': state.edit_sub_category.has_image,
     'sort': state.edit_sub_category.sort,
     'enable': state.edit_sub_category.enable,
     'update_time': Timestamp.now()
   })
+
+  const is_need_upload = crop_image_state.cropped_image != null
+
+  if (is_need_upload) {
+    const body = JSON.stringify({
+      name: state.edit_sub_category.id,
+      path: sub_category_path,
+      file: crop_image_state.cropped_image
+    });
+
+    const {data} = await useFetch("/api/cloudinary/add", {
+      method: "POST",
+      headers: {"Content-Type": "application/json",},
+      body,
+    });
+
+    cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
+    modal_state.is_open = false
+    modal_state.is_submit_loading = false
+  }
+
+  modal_state.is_open = false
+  modal_state.is_submit_loading = false
+
 }
 
 function delete_sub_category(item: SubCategory) {
@@ -90,11 +136,12 @@ function delete_sub_category(item: SubCategory) {
           <th class="bg-gray-600 text-white text-sm">{{ item.id.substring(0, 5) }}</th>
           <td class="bg-gray-600 text-white">{{ item.title }}</td>
           <td class="bg-gray-600 text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
-          <td class="bg-gray-600 text-white ">
+          <td class="bg-gray-600 text-white">
             <!-- The button to open modal -->
             <label for="my-modal" class="badge badge-outline hover:bg-white hover:text-black"
                    @click="click_edit_sub_category(item)">編輯</label>
             <label class="badge badge-outline badge-error hover:bg-red-800 hover:text-white"
+                   :class="{'loading':modal_state.is_delete_loading}"
                    @click="delete_sub_category(item)">刪除</label>
           </td>
         </tr>
@@ -103,8 +150,7 @@ function delete_sub_category(item: SubCategory) {
       </table>
     </div>
     <!-- Put this part before </body> tag -->
-    <input type="checkbox" id="my-modal" class="modal-toggle"/>
-    <div class="modal">
+    <div class="modal" :class="{'modal-open':modal_state.is_open}">
       <div class="modal-box w-11/12 max-w-5xl">
         <h3 class="font-bold text-lg">系統編號：{{ state.edit_sub_category.id }}</h3>
         <form class="my-6">
@@ -126,11 +172,13 @@ function delete_sub_category(item: SubCategory) {
             <input type="number" min="1" max="200" placeholder="0" v-model="state.edit_sub_category.sort">
           </div>
 
-          <div class="mb-6">
-            <label for="url" class="block mb-2 text-white">主分類圖片</label>
-            <input type="url" id="url" v-model="state.edit_sub_category.image_url"
-                   class="input text-white w-full "
-                   placeholder="google driver">
+          <!-- img -->
+          <div>
+            <cloudinary-upload
+                v-model:has_image="state.edit_sub_category.has_image"
+                v-model:last_image="crop_image_state.last_image"
+                v-model:crop_image="crop_image_state.cropped_image"
+                v-model:upload_image="crop_image_state.upload_image"/>
           </div>
 
           <div class="mb-6">
@@ -142,16 +190,18 @@ function delete_sub_category(item: SubCategory) {
 
 
         </form>
-        <div class="modal-action">
+        <div>
           <label for="my-modal" class="btn btn-success w-full"
+                 :class="{'loading':modal_state.is_submit_loading}"
                  @click="edit_sub_category">修改</label>
         </div>
-        <div class="modal-action">
+        <div>
           <label for="my-modal" class="btn btn-outline btn-error my-6 w-full"
+                 :class="{'loading':modal_state.is_delete_loading}"
                  @click="delete_sub_category(state.edit_sub_category)">Delete</label>
         </div>
-        <div class="modal-action">
-          <label for="my-modal" class="btn w-full">關閉</label>
+        <div>
+          <label for="my-modal" class="btn w-full" @click="modal_state.is_open = false">關閉</label>
         </div>
       </div>
     </div>

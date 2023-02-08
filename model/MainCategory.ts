@@ -38,9 +38,9 @@ export function doc2MainCategory(doc: QueryDocumentSnapshot): MainCategory {
     const desc = data['desc'] ?? ''
     const enable = data['enable'] ?? false
     const sort = data['sort'] ?? 0
-    const image_url = data['has_image'] ?? false
+    const has_image = data['has_image'] ?? false
     const create_time = (data['create_time'] as Timestamp).seconds ?? Timestamp.now().seconds
     const update_time = (data['update_time'] as Timestamp).seconds ?? Timestamp.now().seconds
-    return new MainCategory(id, title, desc, enable, sort, image_url, create_time, update_time)
+    return new MainCategory(id, title, desc, enable, sort, has_image, create_time, update_time)
 
 }

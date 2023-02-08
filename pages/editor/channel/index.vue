@@ -24,6 +24,7 @@ watch(fire_store, (store) => {
   state.main_cate_list = store.main_categories
 })
 
+
 const state = reactive({
   main_cate_list: fire_store.main_categories,
   edit_category: MainCategory.newInstance(),
@@ -37,7 +38,6 @@ const modal_state = reactive({
 })
 
 const crop_image_state = reactive({
-  has_image: false,
   last_image: null as CloudinaryImage | null,
   cropped_image: null as string | ArrayBuffer | null | undefined,
   upload_image: null as string | ArrayBuffer | null | undefined
@@ -46,7 +46,7 @@ const crop_image_state = reactive({
 function click_edit_main_cate(item: MainCategory) {
   console.log('click_edit_main_cate', item)
   modal_state.is_open = true
-  state.edit_category = new MainCategory(item.id, item.title, item.desc, item.has_image, item.sort, item.enable, item.create_time, item.update_time)
+  state.edit_category = new MainCategory(item.id, item.title, item.desc, item.enable, item.sort, item.has_image, item.create_time, item.update_time)
   state.edit_sub_origin_sort = item.sort
   crop_image_state.cropped_image = null
   crop_image_state.upload_image = null
@@ -57,6 +57,19 @@ async function remove_main_cate(main_category: MainCategory) {
   console.log('remove_main_cate', main_category)
   modal_state.is_delete_loading = true
   await deleteDoc(doc($firestore, 'MainCate', main_category.id))
+  const body = JSON.stringify({
+    name: main_category.id,
+    path: main_category_path,
+  });
+
+  const {data} = await useFetch("/api/cloudinary/destroy", {
+    method: "POST",
+    headers: {"Content-Type": "application/json",},
+    body,
+  });
+
+  cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
+
   modal_state.is_open = false
   modal_state.is_delete_loading = false
 }
@@ -77,13 +90,13 @@ async function submit_edit_category() {
   await updateDoc(doc($firestore, 'MainCate', state.edit_category.id), {
     'title': state.edit_category.title,
     'desc': state.edit_category.desc,
-    'has_image': crop_image_state.has_image,
-    'sort': state.edit_sub_origin_sort,
+    'has_image': state.edit_category.has_image,
+    'sort': state.edit_category.sort,
     'enable': state.edit_category.enable,
     'update_time': Timestamp.now()
   })
 
-  const is_need_upload = crop_image_state.cropped_image?.toString().length != 0
+  const is_need_upload = crop_image_state.cropped_image != null
 
   if (is_need_upload) {
     const body = JSON.stringify({
@@ -131,7 +144,7 @@ async function submit_edit_category() {
         </thead>
 
         <tbody>
-        <tr v-for="(item , index) in state.main_cate_list" v-on:click="click_edit_main_cate(item)">
+        <tr v-for="(item , index) in state.main_cate_list">
           <td class="text-sm bg-gray-600 text-white">{{ index + 1 }}</td>
           <td class="text-sm bg-gray-600 text-white">{{ item.id.substring(0, 5) }}</td>
           <td class="bg-gray-600 text-white">
@@ -143,6 +156,7 @@ async function submit_edit_category() {
             <label for="modal" class="badge badge-outline hover:bg-white hover:text-black"
                    v-on:click="click_edit_main_cate(item)">編輯</label>
             <label class="badge badge-outline badge-error hover:bg-red-800 hover:text-white"
+                   :class="{'loading':modal_state.is_delete_loading}"
                    v-on:click="remove_main_cate(item)">刪除</label>
           </td>
         </tr>
@@ -171,7 +185,7 @@ async function submit_edit_category() {
           <!-- img -->
           <div>
             <cloudinary-upload
-                v-model:has_image="crop_image_state.has_image"
+                v-model:has_image="state.edit_category.has_image"
                 v-model:last_image="crop_image_state.last_image"
                 v-model:crop_image="crop_image_state.cropped_image"
                 v-model:upload_image="crop_image_state.upload_image"/>

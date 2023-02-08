@@ -3,7 +3,7 @@ import {async} from "@firebase/util";
 
 export default defineEventHandler(async (event) => {
 
-    const {name, path, file} = await readBody(event)
+    const {name, path} = await readBody(event)
 
     const cloudinaryConfig = {
         cloud_name: "di0d7y9qa",
@@ -15,12 +15,16 @@ export default defineEventHandler(async (event) => {
     Cloudinary.config(cloudinaryConfig)
 
     try {
-        const result = await Cloudinary.uploader.destroy(path + '/' + name)
-        console.log(result)
+        const result = await Cloudinary.uploader.destroy(path + '/' + name, {invalidate: true})
+        return {
+            statusCode: 200,
+            versionCode: result.version
+        }
     } catch (e) {
         console.log(e)
+        return {
+            statusCode: 400,
+        }
     }
-    return {
-        statusCode: 200,
-    }
+
 })

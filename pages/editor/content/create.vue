@@ -8,6 +8,7 @@ import {useNuxtApp, useRouter} from "#app";
 import {addDoc, arrayUnion, collection, Timestamp, updateDoc} from "@firebase/firestore";
 import 'vue-advanced-cropper/dist/style.css';
 import {chado_content_path} from "~/utils/cloudinaryUtils";
+import {crop} from "@cloudinary/url-gen/actions/resize";
 
 const {$firestore} = useNuxtApp()
 
@@ -22,7 +23,6 @@ watch(fire_store, (store) => {
 })
 
 const state = reactive({
-  is_submit_loading: false,
   title: '',
   desc: '',
   enable: false,
@@ -30,6 +30,10 @@ const state = reactive({
   sub_categories: fire_store.sub_categories,
   selected_main_categories: [] as MainCategory[],
   selected_sub_categories: [] as SubCategory[],
+  is_submit_loading: false,
+})
+
+const crop_image_state = reactive({
   has_image: false,
   cropped_image: '' as string | ArrayBuffer | null | undefined,
   upload_image: '' as string | ArrayBuffer | null | undefined
@@ -41,7 +45,7 @@ async function submit() {
   const doc = await addDoc(collection($firestore, 'ChadoContent'), {
     'title': state.title,
     'desc': state.desc,
-    'has_image': state.has_image,
+    'has_image': crop_image_state.has_image,
     'enable': state.enable,
     'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
     'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
@@ -50,15 +54,15 @@ async function submit() {
   })
 
 
-  const is_need_upload = state.cropped_image?.toString()?.length != 0
-  console.log('has_image', state.has_image)
+  const is_need_upload = crop_image_state.cropped_image?.toString()?.length != 0
+  console.log('has_image', crop_image_state.has_image)
   console.log('is_need_upload', is_need_upload)
 
   if (is_need_upload) {
     const body = JSON.stringify({
       name: doc.id,
       path: chado_content_path,
-      file: state.cropped_image
+      file: crop_image_state.cropped_image
     });
 
     const {data} = await useFetch("/api/cloudinary/add", {
@@ -124,9 +128,9 @@ function get_main_category_by_sub(main_cate_id: string): string {
 
       <div class="mb-6">
 
-        <cloudinary-upload v-model:has_image="state.has_image"
-                           v-model:crop_image="state.cropped_image"
-                           v-model:upload_image="state.upload_image"/>
+        <cloudinary-upload v-model:has_image="crop_image_state.has_image"
+                           v-model:crop_image="crop_image_state.cropped_image"
+                           v-model:upload_image="crop_image_state.upload_image"/>
 
       </div>
 

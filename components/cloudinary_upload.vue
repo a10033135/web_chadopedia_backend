@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {Coordinates, Cropper} from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import {AdvancedImage} from "@cloudinary/vue";
+import {AdvancedImage, placeholder} from "@cloudinary/vue";
 
 const emit = defineEmits(['update:crop_image', 'update:has_image', 'update:upload_image'])
 
@@ -36,11 +36,18 @@ function reset_crop_image(files: HTMLInputElement) {
 <template>
   <div class="mb-6">
 
-    <AdvancedImage v-if="param.last_image!=null" class="cropper" v-model:cld-img="param.last_image"/>
+    <AdvancedImage
+        v-if="param.last_image!=null"
+        class="cropper" v-model:cld-img="param.last_image">
+      <lazy-server-placeholder>
+
+      </lazy-server-placeholder>
+    </AdvancedImage>
 
     <div class="flex my-3">
-      <input type="checkbox" class="checkbox" :value="param.has_image"
-             @input="$emit('update:has_image',$event.target.value)">
+      <input type="checkbox" class="checkbox"
+             :checked="param.has_image"
+             @input="$emit('update:has_image',$event.target.checked)">
       <label class="mx-2">是否要顯示圖片</label>
     </div>
 
@@ -56,9 +63,11 @@ function reset_crop_image(files: HTMLInputElement) {
         :stencil-props="{aspectRatio: 1}"
         @change="crop_image"/>
 
-    <label v-if="param.upload_image" class="my-2">編輯結果</label>
+    <label v-if="param.upload_image"
+           class="my-2">編輯結果</label>
 
-    <img v-if="param.upload_image" class="cropper" :src="param.crop_image" width="200" height="200"/>
+    <img v-if="param.upload_image"
+         class="cropper" :src="param.crop_image" width="200" height="200"/>
   </div>
 </template>
 
