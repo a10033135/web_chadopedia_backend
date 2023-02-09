@@ -13,6 +13,38 @@ export default defineNuxtConfig({
     modules: ['@pinia/nuxt'],
     ssr: false,
 
+    routeRules: {
+        '/signup': {
+            ssr: false,
+            static: true,
+            prerender: true,
+            headers: {
+                title: 'route_title'
+            }
+        }
+    },
+    app: {
+        head: {
+            charset: 'utf-16',
+            viewport: 'width=500, initial-scale=1',
+            title: 'My App Nuxt Config',
+            meta: [
+                // <meta name="description" content="My amazing site">
+                {name: 'description', content: 'My amazing site.'}
+            ],
+        }
+    },
+    runtimeConfig: {
+        apiSecret: '123',
+        'public': {
+            'cloudinary': {
+                'name': 'di0d7y9qa',
+                'apiKey': '377943481171131',
+                'apiSecret': '40d348e211892ec11cc08a241502bac63e813e31'
+            }
+        }
+    }
+
 })
 
 

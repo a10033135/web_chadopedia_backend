@@ -7,8 +7,9 @@ import {firestore} from "~/stores/firestore";
 import {useNuxtApp} from "#app";
 import {Timestamp, arrayUnion, deleteDoc, doc, updateDoc} from "@firebase/firestore";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
-import {chado_content_path, genChadoContentPath} from "~/utils/cloudinaryUtils";
+import {chado_content_path, genChadoContentPath, uploadImage} from "~/utils/cloudinaryUtils";
 import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
+
 
 const {$firestore} = useNuxtApp()
 const fire_store = firestore()

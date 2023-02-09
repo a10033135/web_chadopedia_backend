@@ -7,8 +7,7 @@ import {firestore} from "~/stores/firestore";
 import {useNuxtApp, useRouter} from "#app";
 import {addDoc, arrayUnion, collection, Timestamp, updateDoc} from "@firebase/firestore";
 import 'vue-advanced-cropper/dist/style.css';
-import {chado_content_path} from "~/utils/cloudinaryUtils";
-import {crop} from "@cloudinary/url-gen/actions/resize";
+import {chado_content_path, uploadImage} from "~/utils/cloudinaryUtils";
 
 const {$firestore} = useNuxtApp()
 
@@ -40,42 +39,31 @@ const crop_image_state = reactive({
 })
 
 async function submit() {
-  state.is_submit_loading = true
+  // state.is_submit_loading = true
+  //
+  // const doc = await addDoc(collection($firestore, 'ChadoContent'), {
+  //   'title': state.title,
+  //   'desc': state.desc,
+  //   'has_image': crop_image_state.has_image,
+  //   'enable': state.enable,
+  //   'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
+  //   'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
+  //   'create_time': Timestamp.now(),
+  //   'update_time': Timestamp.now()
+  // })
+  //
+  //
+  // const is_need_upload = crop_image_state.cropped_image?.toString()?.length != 0
+  // console.log('has_image', crop_image_state.has_image)
+  // console.log('is_need_upload', is_need_upload)
 
-  const doc = await addDoc(collection($firestore, 'ChadoContent'), {
-    'title': state.title,
-    'desc': state.desc,
-    'has_image': crop_image_state.has_image,
-    'enable': state.enable,
-    'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
-    'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
-    'create_time': Timestamp.now(),
-    'update_time': Timestamp.now()
-  })
+  // if (is_need_upload) {
+    await uploadImage(crop_image_state.cropped_image as string)
+  // }
 
-
-  const is_need_upload = crop_image_state.cropped_image?.toString()?.length != 0
-  console.log('has_image', crop_image_state.has_image)
-  console.log('is_need_upload', is_need_upload)
-
-  if (is_need_upload) {
-    const body = JSON.stringify({
-      name: doc.id,
-      path: chado_content_path,
-      file: crop_image_state.cropped_image
-    });
-
-    const {data} = await useFetch("/api/cloudinary/add", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body,
-    });
-
-  }
-
-  state.is_submit_loading = false
-
-  await router.push('/editor/content')
+  // state.is_submit_loading = false
+  //
+  // await router.push('/editor/content')
 }
 
 function cancel() {

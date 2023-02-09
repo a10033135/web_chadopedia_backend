@@ -21,7 +21,6 @@ const state = reactive({
 })
 
 watch(route, (route) => {
-  console.log(route.name)
   let routeArray = (route.name as string).split('-')
   state.page_title = getPageTitle(routeArray[1], routeArray[2], routeArray[3])
 })
@@ -32,7 +31,6 @@ state.page_title = getPageTitle(routeArray[1], routeArray[2], routeArray[3])
 
 function getPageTitle(route1: string, route2: string, route3: string): string {
   let result = ''
-  console.log(route1 + route2 + route3)
   switch (route1) {
     case 'content':
       result += '內容'
