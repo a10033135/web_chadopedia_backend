@@ -5,7 +5,7 @@ import {firestore} from "~/stores/firestore";
 import {MainCategory} from "~/model/MainCategory";
 import {deleteDoc, doc, setDoc, Timestamp, updateDoc} from "@firebase/firestore";
 import {
-  chado_content_path,
+  chado_content_path, destroyImage,
   genChadoContentPath,
   genMainCategoryPath,
   main_category_path
@@ -16,8 +16,6 @@ import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
 
 const {$firestore} = useNuxtApp()
 const fire_store = firestore()
-
-const cloudinary_version = useCookie('cloudinary_version')
 
 const {$cld} = useNuxtApp()
 
@@ -46,6 +44,7 @@ const crop_image_state = reactive({
 
 function click_edit_main_cate(item: MainCategory) {
   console.log('click_edit_main_cate', item)
+  const cloudinary_version = useCookie('cloudinary_version')
   modal_state.is_open = true
   state.edit_category = new MainCategory(item.id, item.title, item.desc, item.enable, item.sort, item.has_image, item.create_time, item.update_time)
   state.edit_sub_origin_sort = item.sort
@@ -58,19 +57,7 @@ async function remove_main_cate(main_category: MainCategory) {
   console.log('remove_main_cate', main_category)
   modal_state.is_delete_loading = true
   await deleteDoc(doc($firestore, 'MainCate', main_category.id))
-  const body = JSON.stringify({
-    name: main_category.id,
-    path: main_category_path,
-  });
-
-  const {data} = await useFetch("/api/cloudinary/destroy", {
-    method: "POST",
-    headers: {"Content-Type": "application/json",},
-    body,
-  });
-
-  cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
-
+  await destroyImage(genMainCategoryPath(main_category.id))
   modal_state.is_open = false
   modal_state.is_delete_loading = false
 }
@@ -100,19 +87,7 @@ async function submit_edit_category() {
   const is_need_upload = crop_image_state.cropped_image != null
 
   if (is_need_upload) {
-    const body = JSON.stringify({
-      name: state.edit_category.id,
-      path: main_category_path,
-      file: crop_image_state.cropped_image
-    });
-
-    const {data} = await useFetch("/api/cloudinary/add", {
-      method: "POST",
-      headers: {"Content-Type": "application/json",},
-      body,
-    });
-
-    cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
+    await uploadImage(genMainCategoryPath(state.edit_category.id), crop_image_state.cropped_image as string)
   }
 
   modal_state.is_open = false
@@ -185,12 +160,14 @@ async function submit_edit_category() {
 
           <div class="mb-6">
             <label for="sort" class="block mb-2 text-white">排序</label>
-            <input type="number" class="input input-success" min="1" max="200" placeholder="0" v-model="state.edit_category.sort">
+            <input type="number" class="input input-success" min="1" max="200" placeholder="0"
+                   v-model="state.edit_category.sort">
           </div>
 
           <!-- img -->
           <div>
             <cloudinary-upload
+                v-model:is_show="modal_state.is_open"
                 v-model:has_image="state.edit_category.has_image"
                 v-model:last_image="crop_image_state.last_image"
                 v-model:crop_image="crop_image_state.cropped_image"

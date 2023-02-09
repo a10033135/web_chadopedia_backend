@@ -2,9 +2,8 @@
 
 import {useNuxtApp, useRouter} from "#app";
 import {firestore} from "~/stores/firestore";
-import {MainCategory} from "~/model/MainCategory";
 import {addDoc, collection, doc, Timestamp, updateDoc} from "@firebase/firestore";
-import {chado_content_path, main_category_path} from "~/utils/cloudinaryUtils";
+import {genMainCategoryPath, uploadImage} from "~/utils/cloudinaryUtils";
 
 const {$firestore} = useNuxtApp()
 const router = useRouter()
@@ -48,30 +47,9 @@ async function submit() {
 
 
   const is_need_upload = crop_image_state.cropped_image?.toString()?.length != 0
-  console.log('has_image', crop_image_state.has_image)
-  console.log('is_need_upload', is_need_upload)
-
   if (is_need_upload) {
-    const body = JSON.stringify({
-      name: doc_uploaded.id,
-      path: main_category_path,
-      file: crop_image_state.cropped_image
-    });
-
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    const {data} = await useFetch("/api/cloudinary/add", {
-      method: "POST",
-      headers: config.headers,
-      body,
-    });
-
+    await uploadImage(genMainCategoryPath(doc_uploaded.id), crop_image_state.cropped_image as string)
   }
-
   state.is_submit_loading = false
   await router.push('/editor/channel')
 }

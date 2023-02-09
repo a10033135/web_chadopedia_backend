@@ -5,15 +5,8 @@ import {SubCategory} from "~/model/SubCategory";
 import {firestore} from "~/stores/firestore";
 import {useNuxtApp, useRouter} from "#app";
 import {collection, deleteDoc, doc, Timestamp, updateDoc} from "@firebase/firestore";
-import {id} from "postcss-selector-parser";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
-import {
-  genChadoContentPath,
-  genMainCategoryPath,
-  genSubCategoryPath,
-  main_category_path,
-  sub_category_path
-} from "~/utils/cloudinaryUtils";
+import {destroyImage, genSubCategoryPath,} from "~/utils/cloudinaryUtils";
 import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
 
 const {$firestore} = useNuxtApp()
@@ -22,8 +15,6 @@ const fire_store = firestore()
 
 const route = useRoute()
 const route_id = route.path.split('/')[3]
-
-const cloudinary_version = useCookie('cloudinary_version')
 
 const {$cld} = useNuxtApp()
 
@@ -54,6 +45,7 @@ const crop_image_state = reactive({
 })
 
 function click_edit_sub_category(item: SubCategory) {
+  const cloudinary_version = useCookie('cloudinary_version')
   modal_state.is_open = true
   state.edit_sub_category = new SubCategory(item.id, item.main_cate_id, item.title, item.desc, item.enable, item.sort, item.has_image, item.create_time, item.update_time)
   state.edit_sub_origin_sort = item.sort
@@ -84,21 +76,7 @@ async function edit_sub_category() {
   const is_need_upload = crop_image_state.cropped_image != null
 
   if (is_need_upload) {
-    const body = JSON.stringify({
-      name: state.edit_sub_category.id,
-      path: sub_category_path,
-      file: crop_image_state.cropped_image
-    });
-
-    const {data} = await useFetch("/api/cloudinary/add", {
-      method: "POST",
-      headers: {"Content-Type": "application/json",},
-      body,
-    });
-
-    cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
-    modal_state.is_open = false
-    modal_state.is_submit_loading = false
+    await uploadImage(genSubCategoryPath(state.edit_sub_category.id), crop_image_state.cropped_image as string)
   }
 
   modal_state.is_open = false
@@ -106,8 +84,9 @@ async function edit_sub_category() {
 
 }
 
-function delete_sub_category(item: SubCategory) {
-  deleteDoc(doc(collection($firestore, 'SubCate'), item.id))
+async function delete_sub_category(item: SubCategory) {
+  await deleteDoc(doc(collection($firestore, 'SubCate'), item.id))
+  await destroyImage(genSubCategoryPath(item.id))
 }
 
 </script>
@@ -164,7 +143,8 @@ function delete_sub_category(item: SubCategory) {
 
           <div class="mb-6">
             <label for="email" class="block mb-2 text-white">副分類名稱</label>
-            <input type="text" id="email" v-model="state.edit_sub_category.title" class="input input-success text-white w-full"
+            <input type="text" id="email" v-model="state.edit_sub_category.title"
+                   class="input input-success text-white w-full"
                    placeholder="ex: 茶茗" required>
           </div>
 
@@ -183,6 +163,7 @@ function delete_sub_category(item: SubCategory) {
           <!-- img -->
           <div>
             <cloudinary-upload
+                v-model:is_show="modal_state.is_open"
                 v-model:has_image="state.edit_sub_category.has_image"
                 v-model:last_image="crop_image_state.last_image"
                 v-model:crop_image="crop_image_state.cropped_image"

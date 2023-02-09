@@ -2,7 +2,8 @@ import {v2 as Cloudinary} from 'cloudinary'
 import {useRuntimeConfig} from "#app";
 
 import {Timestamp} from "@firebase/firestore";
-import {Sha1} from "~/utils/sha1";
+import {SHA1} from 'crypto-js'
+import {cloudinary_version} from "~/utils/cookie_utils";
 
 
 const chado_content_path = 'chado_content'
@@ -26,51 +27,62 @@ export function genSubCategoryPath(id: string): string {
     return `${sub_category_path}/${id}`
 }
 
-import * as crypto from "crypto";
-import CryptoES from 'crypto-es';
-// @ts-ignore
-import hexSha1 from "hex-sha1/src/hex-sha1.mjs";
 
-// @ts-ignore
-
-
-export async function uploadImage(file: string) {
-    const config = await useRuntimeConfig()
-
-    console.log(config.public)
-
-    const public_id = 'sample_image'
-    const timestamp = Timestamp.now().seconds
-    const text = `public_id=${public_id}&timestamp=${timestamp}${config.public.cloudinary.apiSecret}`
-    console.log(text)
-    console.log(Timestamp.now().seconds)
-
-    const textEncode = await new TextEncoder('utf-8').encode('text')
-    // await crypto.subtle.digest('SHA-1', textEncode)
-    // const unit = Uint8Array.from(text.split('').map(letter => letter.charCodeAt(0)));
-    // hexSha1(unit)
-
-    const cry = new Sha1()
-    cry.update(textEncode)
-    cry.hash()
-    const hex = cry.hexDigest()
-    console.log(hex)
-
-    // const cloudName = 'di0d7y9qa'
+export async function uploadImage(public_id: string, file: string) {
+    const version_cookie = useCookie(cloudinary_version)
+    const formData = await genApiFormData(public_id)
     const body = new FormData()
     body.append('file', file)
-    body.append('api_key', config.public.cloudinary.apiKey)
-    body.append('public_id', 'sample_image')
-    body.append('timestamp', '1675936970')
-    body.append('signature', '0a015fddd5503266dd6b8614bf21dc0d93f41ba8')
-    console.log(body)
+    body.append('api_key', formData.api_key)
+    body.append('public_id', formData.public_id)
+    body.append('timestamp', formData.timestamp)
+    body.append('signature', formData.signature)
+    body.append('invalidate', 'true')
     const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${config.public.cloudinary.cloudName}/image/upload`,
+        `https://api.cloudinary.com/v1_1/di0d7y9qa/image/upload`,
         {
             method: "POST",
             body: body,
         }
     );
+
     const data = await res.json();
     console.log(data)
+    version_cookie.value = data.version
+}
+
+export async function destroyImage(public_id: string) {
+    const version_cookie = useCookie(cloudinary_version)
+    const formData = await genApiFormData(public_id)
+    const body = new FormData()
+    body.append('api_key', formData.api_key)
+    body.append('public_id', formData.public_id)
+    body.append('timestamp', formData.timestamp)
+    body.append('signature', formData.signature)
+    body.append('invalidate', 'true')
+    const res = await fetch(
+        `https://api.cloudinary.com/v1_1/di0d7y9qa/image/destroy`,
+        {
+            method: "POST",
+            body: body,
+        }
+    );
+
+    const data = await res.json();
+    console.log(data)
+    version_cookie.value = data.version
+}
+
+async function genApiFormData(public_id: string): Promise<{ public_id: string, api_key: string, timestamp: string, signature: string }> {
+    const config = await useRuntimeConfig()
+    const api_key = config.public.cloudinary.apiKey
+    const timestamp = Timestamp.now().seconds.toString()
+    const signature_text = `invalidate=true&public_id=${public_id}&timestamp=${timestamp}${config.public.cloudinary.apiSecret}`
+    const signature_sha1 = SHA1(signature_text).toString()
+    return {
+        public_id: public_id,
+        api_key: api_key,
+        timestamp: timestamp,
+        signature: signature_sha1
+    }
 }

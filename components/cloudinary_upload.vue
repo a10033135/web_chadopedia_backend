@@ -5,12 +5,20 @@ import {AdvancedImage, placeholder} from "@cloudinary/vue";
 
 const emit = defineEmits(['update:crop_image', 'update:has_image', 'update:upload_image'])
 
-const param = defineProps(['last_image', 'crop_image', 'has_image', 'upload_image'])
+const param = defineProps(['last_image', 'crop_image', 'has_image', 'upload_image', 'is_show'])
 
 const crop_config = {
   quality: 1,
   image_type: 'image/jpeg'
 }
+
+let is_show = false
+
+watch(param, param => {
+  if (is_show == param.is_show && !param.is_show) {
+    reset_crop_image(document.getElementById('myFiles') as HTMLInputElement)
+  }
+})
 
 function fileSelected(file: File) {
   const reader = new FileReader()
@@ -28,6 +36,7 @@ function crop_image(result: { image: string, visibleArea: string, coordinates: C
 function reset_crop_image(files: HTMLInputElement) {
   emit('update:crop_image', null)
   emit('update:upload_image', '')
+  files.files = null
   files.value = ''
 }
 
@@ -52,7 +61,7 @@ function reset_crop_image(files: HTMLInputElement) {
     </div>
 
     <input type="file" class="file-input file-input-success file-input-bordered"
-           ref="myFiles" accept="image/jpeg, image/png"
+           ref="myFiles" accept="image/jpeg, image/png" id="myFiles"
            @change="fileSelected($refs.myFiles.files.item(0))">
 
     <label v-if="param.upload_image" class="btn btn-accent btn-sm"

@@ -6,16 +6,10 @@ import {
   addDoc,
   collection,
   doc,
-  getDocs,
-  query,
-  runTransaction,
-  setDoc,
   Timestamp,
   updateDoc,
-  where
 } from "@firebase/firestore";
-import {async} from "@firebase/util";
-import {main_category_path, sub_category_path} from "~/utils/cloudinaryUtils";
+import {genSubCategoryPath, main_category_path, sub_category_path} from "~/utils/cloudinaryUtils";
 
 const {$firestore} = useNuxtApp()
 
@@ -68,24 +62,7 @@ async function submit() {
   const is_need_upload = crop_image_state.cropped_image?.toString()?.length != 0
 
   if (is_need_upload) {
-    const body = JSON.stringify({
-      name: doc_uploaded.id,
-      path: sub_category_path,
-      file: crop_image_state.cropped_image
-    });
-
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    const {data} = await useFetch("/api/cloudinary/add", {
-      method: "POST",
-      headers: config.headers,
-      body,
-    });
-
+    await uploadImage(genSubCategoryPath(doc_uploaded.id), crop_image_state.cropped_image as string)
   }
 
   state.is_submit_loading = false

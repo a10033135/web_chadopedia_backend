@@ -7,14 +7,12 @@ import {firestore} from "~/stores/firestore";
 import {useNuxtApp} from "#app";
 import {Timestamp, arrayUnion, deleteDoc, doc, updateDoc} from "@firebase/firestore";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
-import {chado_content_path, genChadoContentPath, uploadImage} from "~/utils/cloudinaryUtils";
+import {destroyImage, genChadoContentPath, uploadImage} from "~/utils/cloudinaryUtils";
 import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
 
 
 const {$firestore} = useNuxtApp()
 const fire_store = firestore()
-
-const cloudinary_version = useCookie('cloudinary_version')
 
 const {$cld} = useNuxtApp()
 
@@ -44,41 +42,26 @@ const crop_image_state = reactive({
 })
 
 function click_edit_item(item: ChadoContent) {
-  console.log('click_edit_itme')
+  const version = useCookie(cloudinary_version).value
   modal_state.is_open = true
   state.edit_chado_content = new ChadoContent(item.id, item.title, item.desc, item.enable, item.has_image, item.main_categories, item.sub_categories, item.create_time, item.update_time)
   crop_image_state.edit_upload_img = null // 被上傳的圖片
   crop_image_state.edit_crop_img = null // 被裁切的圖片
-  crop_image_state.last_image = $cld.image(genChadoContentPath(item.id)).setVersion(cloudinary_version.value ?? '').delivery(defaultImage('placeholder.png'))
+  crop_image_state.last_image = $cld.image(genChadoContentPath(item.id)).setVersion(version ?? '').delivery(defaultImage('placeholder.png'))
 }
 
 async function click_remove_item(item: ChadoContent) {
   console.log('click_remove_item')
   modal_state.is_delete_loading = true
   await deleteDoc(doc($firestore, 'ChadoContent', item.id))
-
-  const body = JSON.stringify({
-    name: item.id,
-    path: chado_content_path,
-  });
-
-  const {data} = await useFetch("/api/cloudinary/destroy", {
-    method: "POST",
-    headers: {"Content-Type": "application/json",},
-    body,
-  });
-
-  cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
+  await destroyImage(genChadoContentPath(item.id))
 
   modal_state.is_delete_loading = false
   modal_state.is_open = false
 }
 
 async function click_edit_submit() {
-  console.log('click_edit_submit')
-
   modal_state.is_submit_loading = true
-
   await updateDoc(doc($firestore, 'ChadoContent', state.edit_chado_content.id), {
     'title': state.edit_chado_content.title,
     'desc': state.edit_chado_content.desc,
@@ -88,23 +71,9 @@ async function click_edit_submit() {
     'sub_categories': arrayUnion(...state.edit_chado_content.sub_categories),
     'update_time': Timestamp.now()
   })
-
   const is_need_upload = crop_image_state.edit_crop_img != null
-
   if (is_need_upload) {
-    const body = JSON.stringify({
-      name: state.edit_chado_content.id,
-      path: chado_content_path,
-      file: crop_image_state.edit_crop_img
-    });
-
-    const {data} = await useFetch("/api/cloudinary/add", {
-      method: "POST",
-      headers: {"Content-Type": "application/json",},
-      body,
-    });
-
-    cloudinary_version.value = data.value?.versionCode?.toString() ?? ''
+    await uploadImage(genChadoContentPath(state.edit_chado_content.id), crop_image_state.edit_crop_img as string)
   }
   modal_state.is_open = false
   modal_state.is_submit_loading = false
@@ -246,6 +215,7 @@ function get_sub_title(sub_id: string): string {
             <!-- img -->
             <div>
               <cloudinary-upload
+                  v-model:is_show="modal_state.is_open"
                   v-model:last_image="crop_image_state.last_image"
                   v-model:crop_image="crop_image_state.edit_crop_img"
                   v-model:has_image="state.edit_chado_content.has_image"
