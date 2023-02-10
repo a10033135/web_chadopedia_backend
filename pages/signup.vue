@@ -2,7 +2,6 @@
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "@firebase/auth";
 import {useNuxtApp} from "#app";
 
-
 const {$fireApp, $fireAuth} = useNuxtApp()
 
 const state = reactive({

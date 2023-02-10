@@ -3,15 +3,9 @@
 import {useNuxtApp} from "#app";
 import {firestore} from "~/stores/firestore";
 import {MainCategory} from "~/model/MainCategory";
-import {deleteDoc, doc, setDoc, Timestamp, updateDoc} from "@firebase/firestore";
-import {
-  chado_content_path, destroyImage,
-  genChadoContentPath,
-  genMainCategoryPath,
-  main_category_path
-} from "~/utils/cloudinaryUtils";
+import {deleteDoc, doc, Timestamp, updateDoc} from "@firebase/firestore";
+import {destroyImage, genMainCategoryPath} from "~/utils/cloudinaryUtils";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
-import {AdvancedImage} from "@cloudinary/vue";
 import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
 
 const {$firestore} = useNuxtApp()
