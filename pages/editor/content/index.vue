@@ -5,7 +5,7 @@ import {MainCategory} from "~/model/MainCategory";
 import {SubCategory} from "~/model/SubCategory";
 import {firestore} from "~/stores/firestore";
 import {useNuxtApp} from "#app";
-import {Timestamp, arrayUnion, deleteDoc, doc, updateDoc} from "@firebase/firestore";
+import {Timestamp, arrayUnion, deleteDoc, doc, setDoc} from "@firebase/firestore";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
 import {destroyImage, genChadoContentPath, uploadImage} from "~/utils/cloudinaryUtils";
 import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
@@ -62,13 +62,14 @@ async function click_remove_item(item: ChadoContent) {
 
 async function click_edit_submit() {
   modal_state.is_submit_loading = true
-  await updateDoc(doc($firestore, 'ChadoContent', state.edit_chado_content.id), {
+  await setDoc(doc($firestore, 'ChadoContent', state.edit_chado_content.id), {
     'title': state.edit_chado_content.title,
     'desc': state.edit_chado_content.desc,
     'enable': state.edit_chado_content.enable,
     'has_image': state.edit_chado_content.has_image,
     'main_categories': arrayUnion(...state.edit_chado_content.main_categories),
     'sub_categories': arrayUnion(...state.edit_chado_content.sub_categories),
+    'create_time': state.edit_chado_content.create_time,
     'update_time': Timestamp.now()
   })
   const is_need_upload = crop_image_state.edit_crop_img != null
