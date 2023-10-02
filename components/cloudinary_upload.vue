@@ -8,8 +8,7 @@ const emit = defineEmits(['update:crop_image', 'update:has_image', 'update:uploa
 const param = defineProps(['last_image', 'crop_image', 'has_image', 'upload_image', 'is_show'])
 
 const crop_config = {
-  quality: 1,
-  image_type: 'image/jpeg'
+  quality: 1
 }
 
 let is_show = false

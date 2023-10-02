@@ -16,7 +16,7 @@ const state = reactive({
   page_title: '',
   selected_categories: [] = [
     {main_id: '分類', link: '/editor/channel'},
-    {main_id: '內容', link: '/editor/content'}
+    {main_id: '內容', link: '/editor/content'},
   ]
 })
 

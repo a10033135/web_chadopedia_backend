@@ -7,6 +7,7 @@ import {deleteDoc, doc, Timestamp, updateDoc} from "@firebase/firestore";
 import {destroyImage, genMainCategoryPath} from "~/utils/cloudinaryUtils";
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
 import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
+import { integer } from "vscode-languageserver-types";
 
 const {$firestore} = useNuxtApp()
 const fire_store = firestore()
@@ -16,6 +17,21 @@ const {$cld} = useNuxtApp()
 watch(fire_store, (store) => {
   state.main_cate_list = store.main_categories
 })
+
+
+const search_state = reactive({
+  search_key: ''
+})
+
+watch(search_state, search => {
+  if (search.search_key == '') {
+    state.main_cate_list = fire_store.main_categories
+  } else {
+    const regex = `${search.search_key}+`
+    state.main_cate_list = fire_store.main_categories.filter(value => value.title.match(regex))
+  }
+})
+
 
 
 const state = reactive({
@@ -35,6 +51,12 @@ const crop_image_state = reactive({
   cropped_image: null as string | ArrayBuffer | null | undefined,
   upload_image: null as string | ArrayBuffer | null | undefined
 })
+
+
+function get_date_string(ts:integer):string{
+  const date = new Date(ts*1000)  
+  return date.toLocaleString()
+}
 
 function click_edit_main_cate(item: MainCategory) {
   console.log('click_edit_main_cate', item)
@@ -89,6 +111,7 @@ async function submit_edit_category() {
 
 }
 
+
 </script>
 
 
@@ -96,6 +119,18 @@ async function submit_edit_category() {
   <div>
     <h1>MainCategoryContent</h1>
     <p> - - - </p>
+
+    <div class="form-control">
+      <div class="input-group">
+        <input type="text" placeholder="Search…" v-model="search_state.search_key" class="input input-bordered input-success w-1/2"/>
+        <button class="btn btn-square btn-success">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
 
     <nuxt-link class="btn btn-outline my-5" to="/editor/channel/create">新增</nuxt-link>
 
@@ -108,6 +143,7 @@ async function submit_edit_category() {
           <th class="bg-gray-400 text-white"></th>
           <th class="bg-gray-400 text-white">系統編號</th>
           <th class="bg-gray-400 text-white">主標題</th>
+          <th class="bg-gray-400 text-white">更新時間</th>
           <th class="bg-gray-400 text-white">是否上架</th>
           <th class="bg-gray-400 text-white">編輯</th>
         </tr>
@@ -120,6 +156,7 @@ async function submit_edit_category() {
           <td class="bg-gray-600 text-white">
             <nuxt-link v-bind:to="`/editor/channel/`+item.id" class="hover:text-red-200">{{ item.title }}</nuxt-link>
           </td>
+          <td class="bg-gray-600 text-white">{{ get_date_string(item.update_time) }}</td>
           <td class="text-red-300 bg-gray-600">{{ item.enable ? '上架' : '下架' }}</td>
           <td class="bg-gray-600">
             <!-- The button to open modal -->

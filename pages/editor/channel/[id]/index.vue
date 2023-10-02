@@ -8,6 +8,7 @@ import {collection, deleteDoc, doc, Timestamp, updateDoc} from "@firebase/firest
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
 import {destroyImage, genSubCategoryPath,} from "~/utils/cloudinaryUtils";
 import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
+import { integer } from "vscode-languageserver-types";
 
 const {$firestore} = useNuxtApp()
 
@@ -21,6 +22,19 @@ const {$cld} = useNuxtApp()
 watch(fire_store, store => {
   state.sub_categories = store.sub_categories.filter(value => state.id == value.main_cate_id)
   state.main_category_title = fire_store.main_categories.find((value) => value.id == route_id)?.title ?? 'unknow'
+})
+
+const search_state = reactive({
+  search_key: ''
+})
+
+watch(search_state, search => {
+  if (search.search_key == '') {
+    state.sub_categories = fire_store.sub_categories.filter(value => route_id == value.main_cate_id)
+  } else {
+    const regex = `${search.search_key}+`
+    state.sub_categories = fire_store.sub_categories.filter(value => route_id == value.main_cate_id).filter(value => value.title.match(regex))
+  }
 })
 
 
@@ -89,6 +103,11 @@ async function delete_sub_category(item: SubCategory) {
   await destroyImage(genSubCategoryPath(item.id))
 }
 
+function get_date_string(ts:integer):string{
+  const date = new Date(ts*1000)  
+  return date.toLocaleString()
+}
+
 </script>
 <template>
 
@@ -99,6 +118,18 @@ async function delete_sub_category(item: SubCategory) {
       </li>
       <li>{{ state.main_category_title }}</li>
     </ul>
+
+    <div class="form-control">
+      <div class="input-group">
+        <input type="text" placeholder="Search…" v-model="search_state.search_key" class="input input-bordered input-success w-1/2"/>
+        <button class="btn btn-square btn-success">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
 
     <nuxt-link class="btn btn-outline btn-error my-2" :to="route.path+`/create`">新增</nuxt-link>
 
@@ -111,6 +142,7 @@ async function delete_sub_category(item: SubCategory) {
           <th class="bg-gray-400"></th>
           <th class="bg-gray-400 text-white">系統編號</th>
           <th class="bg-gray-400 text-white">主標題</th>
+          <th class="bg-gray-400 text-white">更新時間</th>
           <th class="bg-gray-400 text-white">是否上架</th>
           <th class="bg-gray-400 text-white">編輯</th>
         </tr>
@@ -121,6 +153,7 @@ async function delete_sub_category(item: SubCategory) {
           <th class="bg-gray-600 text-white text-sm">{{ item.sort }}</th>
           <th class="bg-gray-600 text-white text-sm">{{ item.id.substring(0, 5) }}</th>
           <td class="bg-gray-600 text-white">{{ item.title }}</td>
+          <td class="bg-gray-600 text-white">{{ get_date_string(item.update_time) }}</td>
           <td class="bg-gray-600 text-red-300">{{ item.enable ? '上架' : '下架' }}</td>
           <td class="bg-gray-600 text-white">
             <!-- The button to open modal -->

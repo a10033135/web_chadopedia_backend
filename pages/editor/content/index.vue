@@ -9,6 +9,7 @@ import {Timestamp, arrayUnion, deleteDoc, doc, setDoc} from "@firebase/firestore
 import {CloudinaryImage} from "@cloudinary/url-gen/assets/CloudinaryImage";
 import {destroyImage, genChadoContentPath, uploadImage} from "~/utils/cloudinaryUtils";
 import {defaultImage} from "@cloudinary/url-gen/actions/delivery";
+import { integer } from "vscode-languageserver-types";
 
 
 const {$firestore} = useNuxtApp()
@@ -26,6 +27,19 @@ const modal_state = reactive({
   is_open: false,
   is_submit_loading: false,
   is_delete_loading: false
+})
+
+const search_state = reactive({
+  search_key: ''
+})
+
+watch(search_state, search => {
+  if (search.search_key == '') {
+    state.chado_contents = fire_store.chado_contents
+  } else {
+    const regex = `${search.search_key}+`
+    state.chado_contents = fire_store.chado_contents.filter(value => value.title.match(regex))
+  }
 })
 
 const state = reactive({
@@ -112,6 +126,11 @@ function get_sub_title(sub_id: string): string {
   return state.sub_categories.find(value => sub_id == value.id)?.title ?? ''
 }
 
+function get_date_string(ts:integer):string{
+  const date = new Date(ts*1000)  
+  return date.toLocaleString()
+}
+
 </script>
 
 
@@ -119,6 +138,18 @@ function get_sub_title(sub_id: string): string {
   <div>
     <h1>ContentPage</h1>
     <p> - - - </p>
+    <div class="form-control">
+      <div class="input-group">
+        <input type="text" placeholder="Search…" v-model="search_state.search_key" class="input input-bordered input-success w-1/2"/>
+        <button class="btn btn-square btn-success">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <nuxt-link class="btn btn-outline btn-success my-2" to="/editor/content/create">新增內容</nuxt-link>
 
     <div class="overflow-x-auto">
@@ -128,6 +159,7 @@ function get_sub_title(sub_id: string): string {
           <th class="bg-gray-400 text-white"></th>
           <th class="bg-gray-400 text-white">系統編號</th>
           <th class="bg-gray-400 text-white">主標題</th>
+          <th class="bg-gray-400 text-white">更新時間</th>
           <th class="bg-gray-400 text-white">是否上架</th>
           <th class="bg-gray-400 text-white">編輯</th>
         </tr>
@@ -138,6 +170,8 @@ function get_sub_title(sub_id: string): string {
           <td class="text-sm bg-gray-600 text-white">{{ index + 1 }}</td>
           <td class="text-sm bg-gray-600 text-white">{{ item.id.substring(0, 5) }}</td>
           <td class="bg-gray-600 text-white">{{ item.title }}</td>
+          <td class="bg-gray-600 text-white">{{ get_date_string(item.update_time) }}</td>
+
           <td class="text-red-300 bg-gray-600">{{ item.enable ? '上架' : '下架' }}</td>
           <td class="hover:text-blue-200 bg-gray-600">
             <!-- The button to open modal -->

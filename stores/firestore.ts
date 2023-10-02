@@ -21,7 +21,7 @@ export const firestore = defineStore('firestore_store', {
     actions: {
         update_main_categories(firestore: Firestore) {
             console.log('update_main_categories', 'start')
-            const unsub = onSnapshot(query(collection(firestore, 'MainCate'), orderBy('sort', "asc")), (doc) => {
+            const unsub = onSnapshot(query(collection(firestore, 'MainCate'), orderBy('update_time', "desc")), (doc) => {
                 if (doc) {
                     this.main_categories = doc.docs.map(doc2MainCategory)
                 }
@@ -30,7 +30,7 @@ export const firestore = defineStore('firestore_store', {
         },
         update_sub_categories(firestore: Firestore) {
             console.log('update_sub_categories', 'start')
-            const unsub = onSnapshot(query(collection(firestore, 'SubCate'), orderBy('sort', "asc")), (doc) => {
+            const unsub = onSnapshot(query(collection(firestore, 'SubCate'), orderBy('update_time', "desc")), (doc) => {
                 if (doc) {
                     this.sub_categories = doc.docs.map(doc2SubCategory)
                 }
@@ -39,7 +39,7 @@ export const firestore = defineStore('firestore_store', {
         update_chado_contents(firestore: Firestore) {
             console.log('update_chado_categories', 'start')
 
-            const unsub = onSnapshot(collection(firestore, 'ChadoContent'), (doc) => {
+            const unsub = onSnapshot(query(collection(firestore, 'ChadoContent'),orderBy('update_time',"desc")), (doc) => {
                 if (doc) {
                     this.chado_contents = doc.docs.map(doc2ChadoContent)
                 }
