@@ -41,8 +41,8 @@ async function submit() {
     'has_image': crop_image_state.has_image,
     'enable': state.enable,
     'sort': state.sort,
-    'create_time': Timestamp.now(),
-    'update_time': Timestamp.now()
+    'create_time': Timestamp.now().seconds,
+    'update_time': Timestamp.now().seconds
   })
 
 

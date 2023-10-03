@@ -48,8 +48,8 @@ async function submit() {
     'enable': state.enable,
     'main_categories': arrayUnion(...state.selected_main_categories.map(value => value.id)),
     'sub_categories': arrayUnion(...state.selected_sub_categories.map(value => value.id)),
-    'create_time': Timestamp.now(),
-    'update_time': Timestamp.now()
+    'create_time': Timestamp.now().seconds,
+    'update_time': Timestamp.now().seconds
   })
 
 
